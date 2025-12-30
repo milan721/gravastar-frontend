@@ -1,0 +1,357 @@
+import React, { useEffect, useRef, useState, useContext } from 'react';
+import Header from '../components/ReviewHeader';
+import Footer from '../../components/Footer';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronDown, faChevronUp, faFileArrowDown, faCopyright } from '@fortawesome/free-solid-svg-icons';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { serverURL } from '../../services/serverURL';
+import { getAllPapersApi, getMeApi } from '../../services/allApi';
+import { useNavigate } from 'react-router-dom';
+import { searchKeyContext } from '../../context/contextShare';
+
+const AllBooks = () => {
+  const [expandedIndex, setExpandedIndex] = useState(null);
+  const [papers, setPapers] = useState([]);
+  const [filteredPapers, setFilteredPapers] = useState([]);
+  const [genreOptions, setGenreOptions] = useState([]);
+  const [publisherOptions, setPublisherOptions] = useState([]);
+  const [typeOptions, setTypeOptions] = useState([]);
+  const [selectedGenre, setSelectedGenre] = useState('All');
+  const [selectedPublisher, setSelectedPublisher] = useState('All');
+  const [selectedType, setSelectedType] = useState('All');
+  const [dateDropdownOpen, setDateDropdownOpen] = useState(false);
+  const [yearFilter, setYearFilter] = useState('');
+  const [yearRange, setYearRange] = useState({ from: '', to: '' });
+  const { searchKey, setSearchKey } = useContext(searchKeyContext);
+  const genreRef = useRef(null);
+  const publisherRef = useRef(null);
+  const typeRef = useRef(null);
+  const dateRef = useRef(null);
+  const navigate = useNavigate();
+  const token = typeof window !== 'undefined' ? sessionStorage.getItem('token') : null;
+  const [isReviewer, setIsReviewer] = useState(false);
+
+  const fetchPapers = async () => {
+    try {
+      const result = await getAllPapersApi();
+      if (result.status === 200) {
+        const approved = (result.data || []).filter(p => p.adminApproved);
+        setPapers(approved);
+        setFilteredPapers(approved);
+        const genres = Array.from(new Set(approved.map(p => p.genre).filter(Boolean)));
+        const publishers = Array.from(new Set(approved.map(p => p.publisher).filter(Boolean)));
+        const types = Array.from(new Set(approved.map(p => p.type).filter(Boolean)));
+        setGenreOptions(['All', ...genres]);
+        setPublisherOptions(['All', ...publishers]);
+        setTypeOptions(['All', ...types]);
+      }
+    } catch (e) {
+      toast.error('Failed to load papers');
+    }
+  };
+
+  useEffect(() => { fetchPapers(); }, []);
+
+  // Strict role gating: reviewer or admin
+  useEffect(() => {
+    (async () => {
+      try {
+        if (!token) { setIsReviewer(false); return; }
+        const reqHeader = { Authorization: `Bearer ${token}` };
+        const res = await getMeApi(reqHeader);
+        const role = res?.status === 200 ? res.data?.role : null;
+        setIsReviewer(role === 'reviewer' || role === 'admin');
+      } catch (_ERR) { setIsReviewer(false); }
+    })();
+  }, [token]);
+
+  useEffect(() => {
+    let temp = [...papers];
+    const q = (searchKey || '').trim().toLowerCase();
+    if (q) {
+      temp = temp.filter(p => (p.title || '').toLowerCase().includes(q));
+    }
+    if (selectedGenre !== 'All') temp = temp.filter(p => p.genre === selectedGenre);
+    if (selectedPublisher !== 'All') temp = temp.filter(p => p.publisher === selectedPublisher);
+    if (selectedType !== 'All') temp = temp.filter(p => p.type === selectedType);
+    if (yearFilter) temp = temp.filter(p => p.year === parseInt(yearFilter));
+    if (yearRange.from && yearRange.to) temp = temp.filter(p => p.year >= parseInt(yearRange.from) && p.year <= parseInt(yearRange.to));
+    setFilteredPapers(temp);
+  }, [searchKey, selectedGenre, selectedPublisher, selectedType, yearFilter, yearRange, papers]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dateRef.current && !dateRef.current.contains(e.target)) setDateDropdownOpen(false);
+      if (genreRef.current && !genreRef.current.contains(e.target)) setGenreOpen(false);
+      if (publisherRef.current && !publisherRef.current.contains(e.target)) setPublisherOpen(false);
+      if (typeRef.current && !typeRef.current.contains(e.target)) setTypeOpen(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const [genreOpen, setGenreOpen] = useState(false);
+  const [publisherOpen, setPublisherOpen] = useState(false);
+  const [typeOpen, setTypeOpen] = useState(false);
+
+  const toggleAbstract = (index) => {
+    setExpandedIndex(expandedIndex === index ? null : index);
+  };
+
+  const handleSearch = () => {
+    let temp = [...papers];
+    const q = (searchKey || '').trim().toLowerCase();
+    if (q) {
+      temp = temp.filter(p => (p.title || '').toLowerCase().includes(q));
+    }
+    if (selectedGenre !== 'All') temp = temp.filter(p => p.genre === selectedGenre);
+    if (selectedPublisher !== 'All') temp = temp.filter(p => p.publisher === selectedPublisher);
+    if (selectedType !== 'All') temp = temp.filter(p => p.type === selectedType);
+    if (yearFilter) temp = temp.filter(p => p.year === parseInt(yearFilter));
+    if (yearRange.from && yearRange.to) temp = temp.filter(p => p.year >= parseInt(yearRange.from) && p.year <= parseInt(yearRange.to));
+    setFilteredPapers(temp);
+  };
+
+  const resetDateFilter = () => {
+    setYearFilter('');
+    setYearRange({ from: '', to: '' });
+  };
+
+  return (
+    <>
+     
+
+     
+    <ToastContainer position="top-right" />
+    <Header/>
+      <header className="flex justify-center items-center">
+        <div id="main" className="flex justify-center items-center w-full mb-10">
+          <div className="md:grid grid-cols-3">
+            <div></div>
+            <div className="text-white flex justify-center items-center flex-col">
+              <h3 className="text-5xl text-center">Advancing Technology for Humanity</h3>
+              <div className="flex items-center w-full max-w-lg mt-10 gap-3">
+                <input
+                  type="text"
+                  placeholder="Search papers by title"
+                  value={searchKey}
+                  onChange={(e)=>setSearchKey(e.target.value)}
+                  className="grow py-3 px-4 text-gray-700 focus:outline-none placeholder-gray-400 rounded-full border bg-white"
+                />
+                <button onClick={handleSearch} className="px-6 py-3 rounded-full bg-blue-600 text-white hover:bg-blue-700">
+                  Search
+                </button>
+              </div>
+            </div>
+            <div></div>
+          </div>
+        </div>
+      </header>
+
+     
+      <div className="md:grid grid-cols-[1fr_4fr] gap-x-6 gap-y-6 md:py-10 md:px-10 p-5">
+
+        
+        <div className="space-y-4">
+          {/* Genre */}
+          <div className="relative" ref={genreRef}>
+            <span className="font-semibold mb-1 block">Genre</span>
+            <button
+              className="w-full px-4 py-2 bg-gray-200 rounded-full flex justify-between items-center"
+              onClick={() => setGenreOpen(!genreOpen)}
+            >
+              {selectedGenre}
+              <FontAwesomeIcon icon={genreOpen ? faChevronUp : faChevronDown} />
+            </button>
+            {genreOpen && (
+              <ul className="bg-white shadow-md mt-2 rounded-md w-full max-h-48 overflow-auto z-10">
+                {genreOptions.map(g => (
+                  <li
+                    key={g}
+                    className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${selectedGenre === g ? 'bg-blue-100' : ''}`}
+                    onClick={() => { setSelectedGenre(g); setGenreOpen(false); }}
+                  >
+                    {g}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* Publisher */}
+          <div className="relative" ref={publisherRef}>
+            <span className="font-semibold mb-1 block">Publisher</span>
+            <button
+              className="w-full px-4 py-2 bg-gray-200 rounded-full flex justify-between items-center"
+              onClick={() => setPublisherOpen(!publisherOpen)}
+            >
+              {selectedPublisher}
+              <FontAwesomeIcon icon={publisherOpen ? faChevronUp : faChevronDown} />
+            </button>
+            {publisherOpen && (
+              <ul className="bg-white shadow-md mt-2 rounded-md w-full max-h-48 overflow-auto z-10">
+                {publisherOptions.map(p => (
+                  <li
+                    key={p}
+                    className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${selectedPublisher === p ? 'bg-blue-100' : ''}`}
+                    onClick={() => { setSelectedPublisher(p); setPublisherOpen(false); }}
+                  >
+                    {p}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* Type */}
+          <div className="relative" ref={typeRef}>
+            <span className="font-semibold mb-1 block">Type</span>
+            <button
+              className="w-full px-4 py-2 bg-gray-200 rounded-full flex justify-between items-center"
+              onClick={() => setTypeOpen(!typeOpen)}
+            >
+              {selectedType}
+              <FontAwesomeIcon icon={typeOpen ? faChevronUp : faChevronDown} />
+            </button>
+            {typeOpen && (
+              <ul className="bg-white shadow-md mt-2 rounded-md w-full max-h-48 overflow-auto z-10">
+                {typeOptions.map(t => (
+                  <li
+                    key={t}
+                    className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${selectedType === t ? 'bg-blue-100' : ''}`}
+                    onClick={() => { setSelectedType(t); setTypeOpen(false); }}
+                  >
+                    {t}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* Date */}
+          <div className="relative" ref={dateRef}>
+            <span className="font-semibold mb-1 block">Date</span>
+            <button
+              className="w-full px-4 py-2 bg-gray-200 rounded-full flex justify-between items-center"
+              onClick={() => setDateDropdownOpen(!dateDropdownOpen)}
+            >
+              {yearFilter || (yearRange.from && yearRange.to) ? 'Filtered' : 'Select'}
+              <FontAwesomeIcon icon={dateDropdownOpen ? faChevronUp : faChevronDown} />
+            </button>
+            {dateDropdownOpen && (
+              <div className="bg-white shadow-md mt-2 p-3 rounded-md w-full z-10">
+                <div className="mb-2 flex justify-between items-center">
+                  <label className="block text-sm font-medium">Specific Year:</label>
+                  <button
+                    className="text-sm text-red-600 hover:underline"
+                    onClick={resetDateFilter}
+                  >
+                    Reset
+                  </button>
+                </div>
+                <input
+                  type="number"
+                  placeholder="e.g. 2023"
+                  value={yearFilter}
+                  onChange={e => setYearFilter(e.target.value)}
+                  className="w-full px-2 py-1 border rounded mb-2"
+                />
+                <div>
+                  <label className="block text-sm font-medium">Range:</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      placeholder="From"
+                      value={yearRange.from}
+                      onChange={e => setYearRange(prev => ({ ...prev, from: e.target.value }))}
+                      className="w-1/2 px-2 py-1 border rounded"
+                    />
+                    <input
+                      type="number"
+                      placeholder="To"
+                      value={yearRange.to}
+                      onChange={e => setYearRange(prev => ({ ...prev, to: e.target.value }))}
+                      className="w-1/2 px-2 py-1 border rounded"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        
+      {/* reviewer collections: require login like users */}
+      {!token || !isReviewer ? (
+        <div className="flex justify-center items-center min-h-[40vh] flex-col gap-6 px-4 text-center">
+          <p className="text-2xl">Reviewer access required to view collections.</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-5xl">
+            <div className="bg-gray-100 p-6 rounded shadow">Login to view abstracts</div>
+            <div className="bg-gray-100 p-6 rounded shadow">Login to open paper details</div>
+            <div className="bg-gray-100 p-6 rounded shadow">Login to download PDFs</div>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col w-full mt-10 md:mt-0 space-y-4">
+          {filteredPapers.length === 0 ? (
+            <p>No papers found.</p>
+          ) : (
+            filteredPapers.map((paper, index) => (
+              <div key={paper._id || paper.id} className="bg-gray-100 p-4 rounded shadow w-full">
+                <button
+                  className="font-semibold text-left text-lg text-blue-700 hover:underline"
+                  onClick={() => navigate('/review-view', { state: { paper } })}
+                >
+                  {paper.title}
+                </button>
+                <div className="mt-1">
+                  <span className={`text-xs px-2 py-1 rounded ${paper.adminApproved ? 'bg-green-200 text-green-800' : 'bg-yellow-200 text-yellow-800'}`}>
+                    {paper.adminApproved ? 'Approved' : 'Pending Approval'}
+                  </span>
+                </div>
+                <p className="text-sm">{paper.author}</p>
+                <p className="text-sm">Genre: {paper.genre}</p>
+                <p className="text-sm">{paper.title}{paper.title ? ' | ' : ''}{paper.year || ''}{paper.year ? ' | ' : ''}{paper.type || ''}{paper.type ? ' | ' : ''}{paper.publisher || ''}</p>
+
+                <div className="flex items-center gap-3 mt-2">
+                  <button
+                    onClick={() => toggleAbstract(index)}
+                    className="flex items-center gap-2 text-blue-600"
+                  >
+                    <FontAwesomeIcon icon={expandedIndex === index ? faChevronUp : faChevronDown} />
+                    Abstract
+                  </button>
+                  {paper.pdf && (
+                    <a className="flex items-center gap-2 text-blue-700 hover:text-blue-900" href={`${serverURL}/uploads/${paper.pdf}`} target="_blank" rel="noreferrer">
+                      <FontAwesomeIcon icon={faFileArrowDown} />
+                      <span>Download Abstract</span>
+                    </a>
+                  )}
+                  <button className="flex items-center gap-2 text-gray-700" onClick={()=>toast.info(`Rights belong to ${paper.author}`)}>
+                    <FontAwesomeIcon icon={faCopyright} />
+                    <span>Copyright</span>
+                  </button>
+                </div>
+
+                {expandedIndex === index && (
+                  <div className="mt-2 bg-gray-200 p-2 text-sm rounded">{paper.abstract}</div>
+                )}
+
+                <div className="flex justify-start items-center gap-3 mt-4 mb-2">
+                  <button className="bg-blue-600 text-white py-1 px-3 rounded hover:bg-white hover:text-blue-600 hover:border hover:border-blue-600" onClick={() => navigate('/review-view', { state: { paper, reReview: true } })}>Re-Review</button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      </div>
+
+      <Footer />
+    </>
+  );
+};
+
+export default AllBooks;
