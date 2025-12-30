@@ -1,1 +1,1 @@
-export const serverURL = "https://gravastar-backend.onrender.com";
+export const serverURL = "http://localhost:4000";
