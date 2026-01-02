@@ -78,7 +78,7 @@ const AllBooks = () => {
             placeholder="search by title"
             value={searchTerm}
             onChange={(e)=>setSearchTerm(e.target.value)}
-            className="border border-gray-200 placeholder-gray-200 p-2 w-1/4"
+            className="border border-gray-200 placeholder-gray-200 p-2 w-4/5 md:w-1/4 rounded"
           />
           <button
             onClick={()=>{ setSearchKey((searchTerm || '').trim()); navigate('/admin-collections'); }}
@@ -129,7 +129,7 @@ const AllBooks = () => {
               <p className="text-sm text-red-600">No paper selected.</p>
             )}
         
-            <div className="flex grid-cols-2 gap-2">
+            <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => handleToggle(0)}
                 className="flex items-center gap-2 mt-2 hover:text-gray-200 focus:outline-none"
@@ -172,7 +172,7 @@ const AllBooks = () => {
                 </div>
               </>
             )}
-            <div className="flex justify-center items-center gap-4 mt-4 mb-4 ">
+            <div className="flex justify-center items-center gap-4 mt-4 mb-4 flex-wrap">
               <button
                 onClick={()=>setModal({ open:true, mode:'reject' })}
                 className="bg-red-700 text-white py-2 px-3 shadow hover:border hover:border-red-700 hover:text-red-700 hover:bg-white"

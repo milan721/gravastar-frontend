@@ -157,7 +157,7 @@ const AllBooks = () => {
               <div className="bg-gray-100 w-full p-4 rounded">
                 <h2 className="text-2xl font-semibold mb-1">{paper.title}</h2>
                 <p className="text-sm text-gray-700 mb-3">{[paper.title, paper.author, paper.genre, paper.year, paper.type, paper.publisher, `paper_id: ${paper.id}`].filter(v => v !== undefined && v !== null && v !== '').join(' || ')}</p>
-                <div className="flex items-center gap-4 mb-2">
+                <div className="flex items-center gap-4 mb-2 flex-wrap">
                   <button onClick={downloadPDF} className="text-blue-700 flex items-center gap-2"><FontAwesomeIcon icon={faFileArrowDown} /> Download Abstract</button>
                   <button onClick={downloadResearchPDF} className="text-blue-700 flex items-center gap-2"><FontAwesomeIcon icon={faFileArrowDown} /> Download Research PDF</button>
                   <button onClick={()=>toast.info(`Rights belong to ${paper.author}`)} className="text-gray-700 flex items-center gap-2"><FontAwesomeIcon icon={faCopyright} /> Copyright</button>

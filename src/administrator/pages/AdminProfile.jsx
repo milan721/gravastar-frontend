@@ -253,14 +253,7 @@ const AdminProfile = () => {
       <div style={{ height: "200px" }} className="bg-gray-500"></div>
 
       <div
-        style={{
-          height: "230px",
-          width: "230px",
-          borderRadius: "50%",
-          marginLeft: "70px",
-          marginTop: "-130px",
-        }}
-        className="bg-white overflow-hidden rounded-full"
+        className="bg-white overflow-hidden rounded-full h-[180px] w-[180px] md:h-[230px] md:w-[230px] mt-[-90px] md:mt-[-130px] mx-auto md:mx-0 md:ml-[70px]"
       >
         <img
           src={me?.profile ? `${serverURL}/uploads/${me.profile}` : "https://cdn-icons-png.flaticon.com/512/3135/3135823.png"}
@@ -268,7 +261,7 @@ const AdminProfile = () => {
           style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", borderRadius: "50%" }}
         />
       </div>
-      <div className="flex px-20 mt-5 gap-10">
+      <div className="flex flex-col md:flex-row md:px-20 px-5 mt-5 gap-4 md:gap-10 items-start md:items-center justify-between">
         <p className="flex justify-center items-center">
           <span className="text-3xl">{me?.username || "User"}</span>{" "}
           <FontAwesomeIcon
@@ -284,7 +277,7 @@ const AdminProfile = () => {
       </p>
 
       <div className="md:px-20">
-        <div className="flex justify-center items-center my-5">
+        <div className="flex flex-wrap justify-center items-center gap-2 my-5">
           <p onClick={()=>{setPublishStatus(true);setStatusStatus(false);setContributionStatus(false);setReviewerStatus(false)}}
             className={
               publishStatus
@@ -457,7 +450,7 @@ const AdminProfile = () => {
               </div>
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex flex-wrap justify-end gap-2">
               <button
                 onClick={handleReset}
                 className="bg-amber-500 rounded p-3"
@@ -510,7 +503,7 @@ const AdminProfile = () => {
                       {statusExpandedIndex === idx && (
                         <div className="mt-2 bg-gray-200 p-3 text-sm rounded">{p.abstract}</div>
                       )}
-                      <div className="flex justify-center items-center gap-4 mt-4 mb-2">
+                      <div className="flex justify-center items-center gap-4 mt-4 mb-2 flex-wrap">
                         <button
                           className={`py-2 px-3 shadow rounded border ${isPending ? 'bg-blue-700 text-white border-blue-700' : 'bg-gray-100 text-gray-700 border-gray-300'}`}
                           style={isPending ? { backgroundColor: '#1d4ed8', color: '#ffffff', borderColor: '#1d4ed8' } : { backgroundColor: '#f3f4f6', color: '#374151', borderColor: '#d1d5db' }}
@@ -575,7 +568,7 @@ const AdminProfile = () => {
                       <p className="text-sm text-gray-700">{p.author}</p>
                       <p className="text-sm">Genre: {p.genre}</p>
                       <p className="text-sm">{p.title}{p.title ? " | " : ""}{p.year || ""}{p.year ? " | " : ""}{p.type || ""}{p.type ? " | " : ""}{p.publisher || ""}</p>
-                      <div className="flex items-center gap-3 mt-2">
+                      <div className="flex items-center gap-3 mt-2 flex-wrap">
                         <button
                           onClick={() => setExpandedIndex(expandedIndex === idx ? null : idx)}
                           className="flex items-center gap-2 hover:text-gray-700 focus:outline-none"
@@ -677,7 +670,7 @@ const AdminProfile = () => {
   </div>
 </div>
 
-                <div className="flex justify-end">
+                <div className="flex flex-wrap justify-end gap-2">
                   <button onClick={()=>{setReviewerData({name:"",location:"",university:"",info:"",email:"",summary:"",expertise:"",education:"",experience:"",activities:"",publication:"",membership:"",awards:"",references:""}); setReviewerFiles([]); setReviewerFileKey((k)=>k+1);}} className="bg-amber-500 rounded text-black p-3 hover:bg-white hover:border hover:border-amber-500 hover:text-amber-500">Reset</button>
                   <button onClick={handleReviewerSubmit} className="bg-green-500 rounded text-white p-3 hover:bg-white hover:border hover:border-green-500 hover:text-green-500 ms-4">Submit</button>
                 </div>

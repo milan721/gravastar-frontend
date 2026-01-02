@@ -122,7 +122,7 @@ const ReviewView = () => {
           </div>
           <p className="text-sm mt-1">{[paper.title, paper.author, paper.genre, paper.year, paper.type, paper.publisher].filter(v => v !== undefined && v !== null && v !== '').join(' || ')}{` || paper_id: ${paper.id || ''}`}</p>
 
-          <div className="flex items-center gap-3 mt-2">
+          <div className="flex items-center gap-3 mt-2 flex-wrap">
             <button onClick={downloadAbstractPdf} className="flex items-center gap-2 text-blue-700 hover:text-blue-900">
               <FontAwesomeIcon icon={faFileArrowDown} />
               <span>Download Abstract</span>
@@ -157,7 +157,7 @@ const ReviewView = () => {
             <div className="mt-2 bg-gray-200 p-2 text-sm rounded">{paper.content}</div>
           </div>
 
-          <div className="flex justify-center items-center gap-4 mt-6">
+          <div className="flex justify-center items-center gap-4 mt-6 flex-wrap">
             <button onClick={()=>setModal({ open: true, mode: 'reject' })} className="bg-red-700 text-white py-2 px-3 shadow hover:border hover:border-red-700 hover:text-red-700 hover:bg-white">Reject</button>
             <button onClick={()=>setModal({ open: true, mode: 'suggest' })} className="bg-blue-700 text-white py-2 px-3 shadow hover:border hover:border-blue-700 hover:text-blue-700 hover:bg-white">Suggest Improvements</button>
             <button onClick={()=>submitDecision('accept')} className="bg-green-700 text-white py-2 px-3 shadow hover:border hover:border-green-700 hover:text-green-700 hover:bg-white">Accept</button>

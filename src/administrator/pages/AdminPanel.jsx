@@ -194,8 +194,8 @@ const Profile = () => {
       <Header />
       {isAdmin ? (
         <>
-      <div style={{ height: "200px" }} className="bg-gray-500"></div>
-      <div style={{ height: "230px", width: "230px", borderRadius: "50%", marginLeft: "70px", marginTop: "-130px" }} className="bg-white overflow-hidden">
+      <div className="h-48 bg-gray-500"></div>
+      <div className="h-[230px] w-[230px] rounded-full bg-white overflow-hidden -mt-32 mx-auto md:ml-[70px] md:-mt-[130px]">
         <img className="w-full h-full object-cover" src={me?.profile ? `${serverURL}/uploads/${me.profile}` : "https://cdn-icons-png.flaticon.com/512/3135/3135823.png"} alt="profile pic" />
       </div>
       <div className="flex px-20 mt-5 gap-10">

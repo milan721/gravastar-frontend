@@ -11,6 +11,11 @@ import { searchKeyContext } from '../../context/contextShare'
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
   const { setSearchKey } = useContext(searchKeyContext);
+  const [followed, setFollowed] = useState([false, false, false, false]);
+
+  const markFollowed = (i) => {
+    setFollowed((prev) => prev.map((v, idx) => (idx === i ? true : v)));
+  };
 
   
   useEffect(() => {}, []);
@@ -24,7 +29,7 @@ import { searchKeyContext } from '../../context/contextShare'
           <div></div>
 
           <div className="text-white flex justify-center items-center flex-col">
-            <h3 className="text-5xl text-center">Advancing Technology for Humanity</h3>
+            <h3 className="text-3xl md:text-5xl text-center">Advancing Technology for Humanity</h3>
 
           
             {/* Simple Search Bar (mirrors user Home) */}
@@ -75,7 +80,7 @@ We envision a digital ecosystem that promotes transparency, collaboration, and a
       <div className="h-64 w-full">
         <img
           className="object-cover object-center w-full h-full"
-          src="https://globalnews.ca/wp-content/uploads/2013/11/ryangosling.jpg?quality=65&strip=all"
+          src="https://t3.ftcdn.net/jpg/02/99/04/20/360_F_299042079_vGBD7wIlSeNl7vOevWHiL93G4koMM967.jpg"
           alt="Card image"
         />
       </div>
@@ -91,12 +96,16 @@ We envision a digital ecosystem that promotes transparency, collaboration, and a
 
        
         <div className="mt-auto">
-          <a
-  href="#"
-  className="inline-flex items-center px-4 py-2 text-sm font-medium text-center border border-blue-700 bg-white text-blue-700 shadow hover:bg-blue-700 hover:text-white rounded-md transition-colors duration-200"
+          <button
+  className={
+    followed[0]
+      ? "inline-flex items-center px-4 py-2 text-sm font-medium text-center border border-green-600 bg-green-600 text-white shadow hover:bg-green-700 rounded-md transition-colors duration-200"
+      : "inline-flex items-center px-4 py-2 text-sm font-medium text-center border border-blue-700 bg-white text-blue-700 shadow hover:bg-blue-700 hover:text-white rounded-md transition-colors duration-200"
+  }
+  onClick={() => markFollowed(0)}
 >
-  Follow
-</a>
+  {followed[0] ? 'Followed' : 'Follow'}
+</button>
 
           <p className="font-normal text-gray-700 mt-3 mb-3">
             MORE FROM Viswam N. Vishnu
@@ -110,7 +119,7 @@ We envision a digital ecosystem that promotes transparency, collaboration, and a
       <div className="h-64 w-full">
         <img
           className="object-cover object-center w-full h-full"
-          src="https://globalnews.ca/wp-content/uploads/2013/11/ryangosling.jpg?quality=65&strip=all"
+          src="https://t3.ftcdn.net/jpg/02/00/90/24/360_F_200902415_G4eZ9Ok3Ypd4SZZKjc8nqJyFVp1eOD6V.jpg"
           alt="Card image"
         />
       </div>
@@ -125,12 +134,16 @@ We envision a digital ecosystem that promotes transparency, collaboration, and a
         </p>
 
         <div className="mt-auto">
-          <a
-  href="#"
-  className="inline-flex items-center px-4 py-2 text-sm font-medium text-center border border-blue-700 bg-white text-blue-700 shadow hover:bg-blue-700 hover:text-white rounded-md transition-colors duration-200"
+          <button
+  className={
+    followed[1]
+      ? "inline-flex items-center px-4 py-2 text-sm font-medium text-center border border-green-600 bg-green-600 text-white shadow hover:bg-green-700 rounded-md transition-colors duration-200"
+      : "inline-flex items-center px-4 py-2 text-sm font-medium text-center border border-blue-700 bg-white text-blue-700 shadow hover:bg-blue-700 hover:text-white rounded-md transition-colors duration-200"
+  }
+  onClick={() => markFollowed(1)}
 >
-  Follow
-</a>
+  {followed[1] ? 'Followed' : 'Follow'}
+</button>
           <p className="font-normal text-gray-700 mt-3 mb-3">
             MORE FROM Sreehari J.
           </p>
@@ -143,7 +156,7 @@ We envision a digital ecosystem that promotes transparency, collaboration, and a
       <div className="h-64 w-full">
         <img
           className="object-cover object-center w-full h-full"
-          src="https://globalnews.ca/wp-content/uploads/2013/11/ryangosling.jpg?quality=65&strip=all"
+          src="https://media.hswstatic.com/eyJidWNrZXQiOiJjb250ZW50Lmhzd3N0YXRpYy5jb20iLCJrZXkiOiJnaWZcL3BsYXlcLzBiN2Y0ZTliLWY1OWMtNDAyNC05ZjA2LWIzZGMxMjg1MGFiNy0xOTIwLTEwODAuanBnIiwiZWRpdHMiOnsicmVzaXplIjp7IndpZHRoIjo4Mjh9fX0="
           alt="Card image"
         />
       </div>
@@ -158,12 +171,16 @@ We envision a digital ecosystem that promotes transparency, collaboration, and a
         </p>
 
         <div className="mt-auto">
-          <a
-  href="#"
-  className="inline-flex items-center px-4 py-2 text-sm font-medium text-center border border-blue-700 bg-white text-blue-700 shadow hover:bg-blue-700 hover:text-white rounded-md transition-colors duration-200"
+          <button
+  className={
+    followed[2]
+      ? "inline-flex items-center px-4 py-2 text-sm font-medium text-center border border-green-600 bg-green-600 text-white shadow hover:bg-green-700 rounded-md transition-colors duration-200"
+      : "inline-flex items-center px-4 py-2 text-sm font-medium text-center border border-blue-700 bg-white text-blue-700 shadow hover:bg-blue-700 hover:text-white rounded-md transition-colors duration-200"
+  }
+  onClick={() => markFollowed(2)}
 >
-  Follow
-</a>
+  {followed[2] ? 'Followed' : 'Follow'}
+</button>
           <p className="font-normal text-gray-700 mt-3 mb-3">
             MORE FROM Sidharth G. K.
           </p>
@@ -176,7 +193,7 @@ We envision a digital ecosystem that promotes transparency, collaboration, and a
       <div className="h-64 w-full">
         <img
           className="object-cover object-center w-full h-full"
-          src="https://globalnews.ca/wp-content/uploads/2013/11/ryangosling.jpg?quality=65&strip=all"
+          src="https://t4.ftcdn.net/jpg/03/83/25/83/360_F_383258331_D8imaEMl8Q3lf7EKU2Pi78Cn0R7KkW9o.jpg"
           alt="Card image"
         />
       </div>
@@ -191,12 +208,16 @@ We envision a digital ecosystem that promotes transparency, collaboration, and a
         </p>
 
         <div className="mt-auto">
-          <a
-  href="#"
-  className="inline-flex items-center px-4 py-2 text-sm font-medium text-center border border-blue-700 bg-white text-blue-700 shadow hover:bg-blue-700 hover:text-white rounded-md transition-colors duration-200"
+          <button
+  className={
+    followed[3]
+      ? "inline-flex items-center px-4 py-2 text-sm font-medium text-center border border-green-600 bg-green-600 text-white shadow hover:bg-green-700 rounded-md transition-colors duration-200"
+      : "inline-flex items-center px-4 py-2 text-sm font-medium text-center border border-blue-700 bg-white text-blue-700 shadow hover:bg-blue-700 hover:text-white rounded-md transition-colors duration-200"
+  }
+  onClick={() => markFollowed(3)}
 >
-  Follow
-</a>
+  {followed[3] ? 'Followed' : 'Follow'}
+</button>
           <p className="font-normal text-gray-700 mt-3 mb-3">
             MORE FROM Sruthy Shibu
           </p>
@@ -245,9 +266,9 @@ We envision a digital ecosystem that promotes transparency, collaboration, and a
   
         <div className="mt-auto">
           
-          <p className="font-normal text-gray-700 mt-3 mb-3">
+          <button className="font-normal text-blue-700 mt-3 mb-3 hover:underline" onClick={() => navigate('/review-collections')}>
             READ MORE
-          </p>
+          </button>
         </div>
       </div>
     </div>
@@ -257,7 +278,7 @@ We envision a digital ecosystem that promotes transparency, collaboration, and a
       <div className="h-64 w-full">
         <img
           className="object-cover object-center w-full h-full"
-          src="https://www.asc-csa.gc.ca/images/recherche/tiles/d0927ef1-27a7-4aa5-b597-599b0570451b.jpg"
+          src="https://www.esa.int/var/esa/storage/images/esa_multimedia/images/2022/08/heart_of_the_phantom_galaxy/24419865-1-eng-GB/Heart_of_the_Phantom_Galaxy.jpg"
           alt="Card image"
         />
       </div>
@@ -271,9 +292,9 @@ We envision a digital ecosystem that promotes transparency, collaboration, and a
    
         <div className="mt-auto">
           
-          <p className="font-normal text-gray-700 mt-3 mb-3">
+          <button className="font-normal text-blue-700 mt-3 mb-3 hover:underline" onClick={() => navigate('/review-collections')}>
             READ MORE
-          </p>
+          </button>
         </div>
       </div>
     </div>
@@ -283,7 +304,7 @@ We envision a digital ecosystem that promotes transparency, collaboration, and a
       <div className="h-64 w-full">
         <img
           className="object-cover object-center w-full h-full"
-          src="https://www.asc-csa.gc.ca/images/recherche/tiles/d0927ef1-27a7-4aa5-b597-599b0570451b.jpg"
+          src="https://live.staticflickr.com/65535/53405989488_c12c5b2532.jpg"
           alt="Card image"
         />
       </div>
@@ -297,9 +318,9 @@ We envision a digital ecosystem that promotes transparency, collaboration, and a
        
         <div className="mt-auto">
           
-          <p className="font-normal text-gray-700 mt-3 mb-3">
+          <button className="font-normal text-blue-700 mt-3 mb-3 hover:underline" onClick={() => navigate('/review-collections')}>
             READ MORE
-          </p>
+          </button>
         </div>
       </div>
     </div>
@@ -309,7 +330,7 @@ We envision a digital ecosystem that promotes transparency, collaboration, and a
       <div className="h-64 w-full">
         <img
           className="object-cover object-center w-full h-full"
-          src="https://www.asc-csa.gc.ca/images/recherche/tiles/d0927ef1-27a7-4aa5-b597-599b0570451b.jpg"
+          src="https://science.nasa.gov/wp-content/uploads/2023/06/webb-flickr-52259221868-30e1c78f0c-4k-jpg.webp"
           alt="Card image"
         />
       </div>
@@ -322,9 +343,9 @@ We envision a digital ecosystem that promotes transparency, collaboration, and a
 
         <div className="mt-auto">
           
-          <p className="font-normal text-gray-700 mt-3 mb-3">
+          <button className="font-normal text-blue-700 mt-3 mb-3 hover:underline" onClick={() => navigate('/review-collections')}>
             READ MORE
-          </p>
+          </button>
         </div>
       </div>
     </div>

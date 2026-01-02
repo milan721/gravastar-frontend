@@ -13,6 +13,10 @@ export default defineConfig({
     hmr: {
       clientport: 5175,
     },
+    headers: {
+      // Allow cross-origin popups to communicate via window.postMessage
+      'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+    },
   },
 })
 
