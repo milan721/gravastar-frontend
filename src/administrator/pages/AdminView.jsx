@@ -7,7 +7,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { serverURL } from '../../services/serverURL';
-import { adminApprovePaperApi, submitReviewDecisionApi, deletePaperApi } from '../../services/allApi';
+import { submitReviewDecisionApi, deletePaperApi } from '../../services/allApi';
 import { jsPDF } from 'jspdf';
 import { useContext } from 'react';
 import { searchKeyContext } from '../../context/contextShare';
@@ -34,25 +34,6 @@ const AllBooks = () => {
 
   const metadataLine = (p) => [p.title, p.author, p.genre, p.year, p.type, p.publisher].filter(v=>v!==undefined && v!==null && v!=='').join(' || ');
 
-  const downloadAbstractPdf = () => {
-    if (!paper) return;
-    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-    const meta = metadataLine(paper);
-    let y = 40;
-    doc.setFontSize(14);
-    doc.text(`Metadata: ${meta}`, 40, y);
-    y += 24;
-    doc.text(`paper_id: ${paper.id || ''}`, 40, y);
-    y += 32;
-    doc.setFontSize(16);
-    doc.text('Abstract', 40, y);
-    y += 20;
-    doc.setFontSize(12);
-    const lines = doc.splitTextToSize(paper.abstract || '', 520);
-    doc.text(lines, 40, y);
-    doc.save(`${paper.title || 'abstract'}.pdf`);
-  };
-
   const downloadResearchPdf = () => {
     if (!paper) return;
     const doc = new jsPDF({ unit: 'pt', format: 'a4' });
@@ -78,6 +59,8 @@ const AllBooks = () => {
     doc.text(contLines, 40, y);
     doc.save(`${paper.title || 'research'}.pdf`);
   };
+
+  // Add to Grid handled in Admin Panel; no action here
 
   
  
@@ -156,10 +139,6 @@ const AllBooks = () => {
                 />
                 <span>Abstract</span>
               </button>
-              <button onClick={downloadAbstractPdf} className="flex items-center mt-3 text-blue-700 hover:text-blue-900">
-                <FontAwesomeIcon icon={faFileArrowDown} />
-                <span className="ms-2">Download Abstract</span>
-              </button>
               <button onClick={downloadResearchPdf} className="flex items-center mt-3 text-blue-700 hover:text-blue-900">
                 <FontAwesomeIcon icon={faFileArrowDown} />
                 <span className="ms-2">Download Research</span>
@@ -170,10 +149,14 @@ const AllBooks = () => {
                   <span className="ms-2">Download Abstract</span>
                 </a>
               )}
-              <FontAwesomeIcon
-                className="flex items-center mt-3 hover:text-gray-200 focus:outline-none"
-                icon={faCopyright}
-              />
+              <button
+                onClick={()=>{ if(paper?.author){ toast.info(`Rights belong to ${paper.author}`); } else { toast.info('Rights information unavailable'); } }}
+                className="flex items-center mt-3 text-gray-700 hover:text-gray-900"
+                title="Copyright"
+              >
+                <FontAwesomeIcon icon={faCopyright} />
+                <span className="ms-2">Copyright</span>
+              </button>
                 <FontAwesomeIcon className="flex items-center mt-3 hover:text-red-600 focus:outline-none" icon={faTrash} />
             </div>
         
@@ -198,6 +181,7 @@ const AllBooks = () => {
                 onClick={()=>setModal({ open:true, mode:'suggest' })}
                 className="bg-blue-700 text-white py-2 px-3 shadow hover:border hover:border-blue-700 hover:text-blue-700 hover:bg-white"
               >Suggest for improvements</button>
+              {/* Add to Grid removed from Admin View; use Admin Panel > Add to Grid */}
             </div>
           </div>
         

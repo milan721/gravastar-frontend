@@ -51,7 +51,6 @@ const Footer = () => {
        
       
 
-
       
     </div>
     <div className='bg-gray-500 p-5'>

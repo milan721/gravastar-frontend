@@ -194,18 +194,15 @@ const handleGoogleLogin = async (credentialResponse) => {
               </button>
             )}
 
-            {!register && (
-              <>
-                <p className="text-white my-4">----------- OR -----------</p>
-
-                {import.meta.env.VITE_GOOGLE_CLIENT_ID ? (
-                  <GoogleLogin
-                    onSuccess={handleGoogleLogin}
-                    onError={() => toast.error("Google Login Failed")}
-                  />
-                ) : null}
-              </>
-            )}
+            <>
+              <p className="text-white my-4">----------- OR -----------</p>
+              {import.meta.env.VITE_GOOGLE_CLIENT_ID ? (
+                <GoogleLogin
+                  onSuccess={handleGoogleLogin}
+                  onError={() => toast.error("Google Login Failed")}
+                />
+              ) : null}
+            </>
 
             <p className="text-white mt-4 text-sm">
               {register ? "Already a user?" : "New user?"}{" "}

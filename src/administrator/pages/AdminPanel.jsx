@@ -410,10 +410,7 @@ const Profile = () => {
                     <div className="p-5 flex flex-col grow space-y-2">
                       <div className="flex items-center gap-2">
                         <h5 className="mb-1 text-2xl font-bold tracking-tight text-gray-900">{u.username || u.name}</h5>
-                        <button title="More info" onClick={()=>{ if(u.reviewerInfo){ setInfoModal({ open:true, name: u.username || u.name || u.email, info: u.reviewerInfo }); } else { toast.info('No reviewer info available'); } }} className="text-xs px-2 py-1 border rounded text-gray-700 hover:bg-gray-100 flex items-center gap-1">
-                          <FontAwesomeIcon icon={faCircleInfo} />
-                          Info
-                        </button>
+                        {/* Info button intentionally removed for Users */}
                       </div>
                       <div className="mb-2">
                         {(() => { const active = u.lastLogin && (Date.now() - new Date(u.lastLogin).getTime()) < 30*60*1000; return <span className={`text-xs px-2 py-1 rounded ${active ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-gray-100 text-gray-700 border border-gray-300'}`}>{active ? 'Active' : 'Inactive'}</span>; })()}
@@ -509,7 +506,15 @@ const Profile = () => {
                 {Object.entries(infoModal.info).map(([k,v])=> (
                   <div key={k}>
                     <p className="font-medium capitalize">{k.replace(/([A-Z])/g,' $1')}</p>
-                    {Array.isArray(v) ? (
+                    {k === 'pdf' && Array.isArray(v) ? (
+                      <ul className="list-disc ms-5">
+                        {v.map((file, i)=> (
+                          <li key={i}>
+                            <a className="text-blue-700 hover:text-blue-900 underline" href={`${serverURL}/uploads/${file}`} target="_blank" rel="noreferrer">{file}</a>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : Array.isArray(v) ? (
                       <ul className="list-disc ms-5">
                         {v.map((x, i)=> <li key={i}>{x}</li>)}
                       </ul>

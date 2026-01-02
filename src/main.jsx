@@ -11,7 +11,7 @@ const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     {clientId ? (
-      <GoogleOAuthProvider clientId={clientId}>
+      <GoogleOAuthProvider clientId='446796058600-pm0eplkfpvujc47rdeqc8jemqokon7kd.apps.googleusercontent.com'>
         <BrowserRouter>
           <ContextShare><App /></ContextShare>
         </BrowserRouter>

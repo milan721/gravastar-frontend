@@ -6,7 +6,7 @@ import { faChevronDown, faChevronUp, faFileArrowDown, faCopyright } from '@forta
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { serverURL } from '../../services/serverURL';
-import { getMeApi, adminListAcceptedPapersApi, getMyReviewStatusesApi } from '../../services/allApi';
+import { getMeApi, getAllPapersApi } from '../../services/allApi';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { searchKeyContext } from '../../context/contextShare';
 
@@ -45,35 +45,21 @@ const AllBooks = () => {
 
   const fetchPapers = async () => {
     try {
-      const reqHeader = token ? { Authorization: `Bearer ${token}` } : undefined;
-      const acceptedRes = await adminListAcceptedPapersApi(reqHeader);
-      if (acceptedRes?.status === 200) {
-        let list = acceptedRes.data || [];
-        // If admin has suggested/rejected any, hide those from collections
-        if (reqHeader) {
-          try {
-            const statusRes = await getMyReviewStatusesApi(reqHeader);
-            if (statusRes?.status === 200 && statusRes.data) {
-              const myMap = statusRes.data; // { paperId: decision }
-              list = list.filter(p => {
-                const d = myMap[p.id];
-                return !(d === 'suggest' || d === 'reject');
-              });
-            }
-          } catch (_e) {
-            // ignore status fetch failures; show list as-is
-          }
-        }
-
-        setPapers(list);
-        setFilteredPapers(list);
-        const genres = Array.from(new Set(list.map(p => p.genre).filter(Boolean)));
-        const publishers = Array.from(new Set(list.map(p => p.publisher).filter(Boolean)));
-        const types = Array.from(new Set(list.map(p => p.type).filter(Boolean)));
-        setGenreOptions(['All', ...genres]);
-        setPublisherOptions(['All', ...publishers]);
-        setTypeOptions(['All', ...types]);
+      const allRes = await getAllPapersApi();
+      let list = [];
+      if (allRes?.status === 200) {
+        const all = allRes.data || [];
+        list = all.filter(p => p.adminApproved === true);
       }
+
+      setPapers(list);
+      setFilteredPapers(list);
+      const genres = Array.from(new Set((list || []).map(p => p.genre).filter(Boolean)));
+      const publishers = Array.from(new Set((list || []).map(p => p.publisher).filter(Boolean)));
+      const types = Array.from(new Set((list || []).map(p => p.type).filter(Boolean)));
+      setGenreOptions(['All', ...genres]);
+      setPublisherOptions(['All', ...publishers]);
+      setTypeOptions(['All', ...types]);
     } catch (e) {
       toast.error('Failed to load papers');
     }
@@ -82,6 +68,7 @@ const AllBooks = () => {
   useEffect(() => { fetchPapers(); }, []);
   // Refetch on navigation changes (e.g., after reject/suggest redirects)
   useEffect(() => { fetchPapers(); }, [location.key]);
+  
 
   // Strict role gating: admin only
   useEffect(() => {
@@ -170,6 +157,7 @@ const AllBooks = () => {
                   Search
                 </button>
               </div>
+              
             </div>
             <div></div>
           </div>
@@ -331,15 +319,13 @@ const AllBooks = () => {
                     {paper.title}
                   </button>
                   <div className="mt-1">
-                    <span className="text-xs px-2 py-1 rounded bg-yellow-200 text-yellow-800">
-                      Pending Admin Approval
-                    </span>
+                    <span className="text-xs px-2 py-1 rounded bg-green-200 text-green-800">Approved</span>
                   </div>
                   <p className="text-sm">{paper.author}</p>
                   <p className="text-sm">Genre: {paper.genre}</p>
                   <p className="text-sm">{paper.title}{paper.title ? ' | ' : ''}{paper.year || ''}{paper.year ? ' | ' : ''}{paper.type || ''}{paper.type ? ' | ' : ''}{paper.publisher || ''}</p>
 
-                  <div className="flex items-center gap-3 mt-2">
+                   <div className="flex items-center gap-3 mt-2">
                     <button
                       onClick={() => toggleAbstract(index)}
                       className="flex items-center gap-2 text-blue-600"
