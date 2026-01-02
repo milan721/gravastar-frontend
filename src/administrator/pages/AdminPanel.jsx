@@ -44,7 +44,7 @@ const Profile = () => {
       const reqHeader = { Authorization: `Bearer ${t}` };
       const res = await getMeApi(reqHeader);
       if (res?.status === 200) setMe(res.data);
-    } catch { /* noop */ }
+    } catch (error) { console.error("Error:", error); }
   };
 
   // Toggles
@@ -115,11 +115,11 @@ const Profile = () => {
           if (res?.status === 200) setAdminPapers(res.data || []);
           const st = await getUserPaperStatusesApi(mail);
           if (st?.status === 200) setAdminStatusesMap(st.data || {});
-        } catch (_ERR) { void _ERR; }
+        } catch (error) { console.error("Error:", error); }
       } else {
         toast.error(result?.data || 'Publish failed');
       }
-    } catch { toast.error('Publish failed'); }
+    } catch (error) { console.error("Error:", error); toast.error('Publish failed'); }
   };
 
   const handleReset = () => {
@@ -132,7 +132,7 @@ const Profile = () => {
     const t = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
     const reqHeader = t ? { Authorization: `Bearer ${t}` } : {};
     (async () => {
-      try { const res = await getAdminUsersApi(reqHeader); if (res?.status === 200) setUsers(res.data || []); } catch (_ERR) { void _ERR; /* noop */ }
+      try { const res = await getAdminUsersApi(reqHeader); if (res?.status === 200) setUsers(res.data || []); } catch (error) { console.error("Error:", error); }
     })();
   }, []);
 
@@ -147,7 +147,7 @@ const Profile = () => {
         const res = await getMeApi(reqHeader);
         setIsAdmin(res?.status === 200 && res.data?.role === 'admin');
         if (res?.status === 200) setMe(res.data);
-      } catch (_ERR) { void _ERR; setIsAdmin(false); }
+      } catch (error) { console.error("Error:", error); setIsAdmin(false); }
     })();
   }, []);
 
@@ -164,10 +164,10 @@ const Profile = () => {
             if (res?.status === 200) setAdminPapers(res.data || []);
             const st = await getUserPaperStatusesApi(mail);
             if (st?.status === 200) setAdminStatusesMap(st.data || {});
-          } catch (_ERR) { void _ERR; /* noop */ }
+          } catch (error) { console.error("Error:", error); }
         })();
       }
-    } catch (_ERR) { void _ERR; /* noop */ }
+    } catch (error) { console.error("Error:", error); }
   }, []);
 
   const refreshAccepted = async () => {
@@ -177,7 +177,7 @@ const Profile = () => {
       const r = await adminListAcceptedPapersApi(reqHeader);
       if (r?.status === 200) setAcceptedPapers(r.data || []);
       else toast.error(r?.data || "Admin access required");
-    } catch (_ERR) { void _ERR; toast.error("Admin access required"); }
+    } catch (error) { console.error("Error:", error); toast.error("Admin access required"); }
   };
   const refreshRejected = async () => {
     const t = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
@@ -186,7 +186,7 @@ const Profile = () => {
       const r = await adminListRejectedPapersApi(reqHeader);
       if (r?.status === 200) setRejectedPapers(r.data || []);
       else toast.error(r?.data || "Admin access required");
-    } catch (_ERR) { void _ERR; toast.error("Admin access required"); }
+    } catch (error) { console.error("Error:", error); toast.error("Admin access required"); }
   };
 
   return (
@@ -212,7 +212,7 @@ const Profile = () => {
           <p onClick={()=>{setPublishStatus(false);setStatusStatus(false);setContributionStatus(true);setReviewerStatus(false);setAddStatus(false);setRemoveGridStatus(false);setDashStatus(false);}} className={ contributionStatus ? "p-4 text-blue-800 border border-t border-r border-gray-200 rounded cursor-pointer" : "p-4 text-black border-b border-gray-200" }>Contributions</p>
           <p onClick={()=>{setPublishStatus(false);setStatusStatus(false);setContributionStatus(false);setReviewerStatus(false);setAddStatus(true);setRemoveGridStatus(false);setDashStatus(false);refreshAccepted();}} className={ addStatus ? "p-4 text-blue-800 border border-t border-r border-gray-200 rounded cursor-pointer" : "p-4 text-black border-b border-gray-200" }>Add to Grid</p>
           <p onClick={()=>{setPublishStatus(false);setStatusStatus(false);setContributionStatus(false);setReviewerStatus(false);setAddStatus(false);setRemoveGridStatus(true);setDashStatus(false);refreshRejected();}} className={ removeGridStatus ? "p-4 text-blue-800 border border-t border-r border-gray-200 rounded cursor-pointer" : "p-4 text-black border-b border-gray-200" }>Remove from Grid</p>
-          <p onClick={()=>{setPublishStatus(false);setStatusStatus(false);setContributionStatus(false);setReviewerStatus(false);setAddStatus(false);setRemoveGridStatus(false);setDashStatus(true);(async()=>{const t=sessionStorage.getItem("token");const reqHeader=t?{Authorization:`Bearer ${t}`}:{ };try{const res=await getAdminUsersApi(reqHeader);if(res?.status===200) setUsers(res.data||[]);}catch(_ERR){void _ERR; /* noop */}})();}} className={ dashStatus ? "p-4 text-blue-800 border border-t border-r border-gray-200 rounded cursor-pointer" : "p-4 text-black border-b border-gray-200" }>Dashboard</p>
+          <p onClick={()=>{setPublishStatus(false);setStatusStatus(false);setContributionStatus(false);setReviewerStatus(false);setAddStatus(false);setRemoveGridStatus(false);setDashStatus(true);(async()=>{const t=sessionStorage.getItem("token");const reqHeader=t?{Authorization:`Bearer ${t}`}:{ };try{const res=await getAdminUsersApi(reqHeader);if(res?.status===200) setUsers(res.data||[]);}catch(error){console.error("Error:", error);}})();}} className={ dashStatus ? "p-4 text-blue-800 border border-t border-r border-gray-200 rounded cursor-pointer" : "p-4 text-black border-b border-gray-200" }>Dashboard</p>
         </div>
 
         {/* Publish Research (user parity) */}
@@ -256,7 +256,7 @@ const Profile = () => {
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-semibold">Publish Status</h2>
               <button onClick={async()=>{
-                try{ const t=sessionStorage.getItem('token'); const decoded=t?jwtDecode(t):null; const mail=decoded?.userMail || paperData.email; if(!mail) return; const r=await getUserPapersApi(mail); if(r?.status===200) setAdminPapers(r.data||[]); const s=await getUserPaperStatusesApi(mail); if(s?.status===200) setAdminStatusesMap(s.data||{});}catch(_ERR){void _ERR;}
+                try{ const t=sessionStorage.getItem('token'); const decoded=t?jwtDecode(t):null; const mail=decoded?.userMail || paperData.email; if(!mail) return; const r=await getUserPapersApi(mail); if(r?.status===200) setAdminPapers(r.data||[]); const s=await getUserPaperStatusesApi(mail); if(s?.status===200) setAdminStatusesMap(s.data||{});}catch(error){console.error("Error:", error);}
               }} className="px-3 py-2 bg-blue-600 text-white rounded">Refresh</button>
             </div>
             <div className="flex flex-col w-full mt-10 md:mt-0 space-y-4">
@@ -310,7 +310,7 @@ const Profile = () => {
         {contributionStatus && (
           <div className="p-10 my-20 shadow rounded">
             <div className="flex justify-between items-center mb-4"><h2 className="text-2xl font-semibold">Contributions</h2><button onClick={async()=>{
-              try{ const t=sessionStorage.getItem('token'); const decoded=t?jwtDecode(t):null; const mail=decoded?.userMail || paperData.email; if(!mail) return; const r=await getUserPapersApi(mail); if(r?.status===200) setAdminPapers(r.data||[]); const s=await getUserPaperStatusesApi(mail); if(s?.status===200) setAdminStatusesMap(s.data||{});}catch(_ERR){void _ERR;}
+              try{ const t=sessionStorage.getItem('token'); const decoded=t?jwtDecode(t):null; const mail=decoded?.userMail || paperData.email; if(!mail) return; const r=await getUserPapersApi(mail); if(r?.status===200) setAdminPapers(r.data||[]); const s=await getUserPaperStatusesApi(mail); if(s?.status===200) setAdminStatusesMap(s.data||{});}catch(error){console.error("Error:", error);}
             }} className="px-3 py-2 bg-blue-600 text-white rounded">Refresh</button></div>
             <div className="bg-gray-100 p-4 rounded">
               <div className="flex flex-col w-full mt-4 md:mt-0 space-y-4">
@@ -324,7 +324,7 @@ const Profile = () => {
                     <div className="flex items-center gap-3 mt-2">
                       <button onClick={() => setExpandedContribIndex(expandedContribIndex === idx ? null : idx)} className="flex items-center gap-2 hover:text-gray-700 focus:outline-none"><FontAwesomeIcon icon={expandedContribIndex === idx ? faChevronUp : faChevronDown} /><span>Abstract</span></button>
                       {p.pdf && (<a className="flex items-center gap-2 hover:text-gray-700" href={`${serverURL}/uploads/${p.pdf}`} target="_blank" rel="noreferrer"><FontAwesomeIcon icon={faFileArrowDown} /><span>Download Abstract</span></a>)}
-                      <button onClick={async()=>{try{const t=sessionStorage.getItem('token');const reqHeader={Authorization:`Bearer ${t}`};const r=await deletePaperApi(p.id,reqHeader);if(r?.status===200){toast.success('Deleted');setAdminPapers(list=>list.filter(x=>x.id!==p.id));}else toast.error(r?.data||'Delete failed');}catch(_ERR){void _ERR; toast.error('Delete failed')}}} className="flex items-center gap-2 text-red-600 hover:text-red-700"><FontAwesomeIcon icon={faTrash} /><span>Delete</span></button>
+                      <button onClick={async()=>{try{const t=sessionStorage.getItem('token');const reqHeader={Authorization:`Bearer ${t}`};const r=await deletePaperApi(p.id,reqHeader);if(r?.status===200){toast.success('Deleted');setAdminPapers(list=>list.filter(x=>x.id!==p.id));}else toast.error(r?.data||'Delete failed');}catch(error){console.error("Error:", error); toast.error('Delete failed')}}} className="flex items-center gap-2 text-red-600 hover:text-red-700"><FontAwesomeIcon icon={faTrash} /><span>Delete</span></button>
                     </div>
                     {expandedContribIndex === idx && (<div className="mt-2 bg-gray-300 p-3 text-sm rounded">{p.abstract}</div>)}
                   </div>
@@ -361,7 +361,7 @@ const Profile = () => {
                   </div>
                   {expandedAddIndex === idx && <div className="mt-2 bg-gray-200 p-2 text-sm rounded">{p.abstract}</div>}
                   <div className="flex justify-end gap-3 mt-4">
-                    <button onClick={async()=>{try{const t=sessionStorage.getItem("token");const reqHeader={Authorization:`Bearer ${t}`};const r=await adminApprovePaperApi(p.id,reqHeader);if(r?.status===200){toast.success("Added to grid");setAcceptedPapers(list=>list.filter(x=>x.id!==p.id));await refreshAccepted();}else toast.error(r?.data||"Approve failed");}catch(_ERR){void _ERR; toast.error("Approve failed")}}} className="bg-green-600 text-white px-3 py-2 rounded">Add to Grid</button>
+                    <button onClick={async()=>{try{const t=sessionStorage.getItem("token");const reqHeader={Authorization:`Bearer ${t}`};const r=await adminApprovePaperApi(p.id,reqHeader);if(r?.status===200){toast.success("Added to grid");setAcceptedPapers(list=>list.filter(x=>x.id!==p.id));await refreshAccepted();}else toast.error(r?.data||"Approve failed");}catch(error){console.error("Error:", error); toast.error("Approve failed")}}} className="bg-green-600 text-white px-3 py-2 rounded">Add to Grid</button>
                   </div>
                 </div>
               ))}
@@ -381,7 +381,7 @@ const Profile = () => {
                   <p className="text-sm">{p.author}</p>
                   <p className="text-sm">Genre: {p.genre}</p>
                   <div className="flex justify-end gap-3 mt-4">
-                    <button onClick={async()=>{try{const t=sessionStorage.getItem("token");const reqHeader={Authorization:`Bearer ${t}`};const r=await deletePaperApi(p.id,reqHeader);if(r?.status===200){toast.success("Removed from grid");setRejectedPapers(list=>list.filter(x=>x.id!==p.id));await refreshRejected();}else toast.error(r?.data||"Remove failed");}catch(_ERR){void _ERR; toast.error("Remove failed")}}} className="bg-red-600 text-white px-3 py-2 rounded">Remove</button>
+                    <button onClick={async()=>{try{const t=sessionStorage.getItem("token");const reqHeader={Authorization:`Bearer ${t}`};const r=await deletePaperApi(p.id,reqHeader);if(r?.status===200){toast.success("Removed from grid");setRejectedPapers(list=>list.filter(x=>x.id!==p.id));await refreshRejected();}else toast.error(r?.data||"Remove failed");}catch(error){console.error("Error:", error); toast.error("Remove failed")}}} className="bg-red-600 text-white px-3 py-2 rounded">Remove</button>
                   </div>
                 </div>
               ))}
@@ -399,7 +399,7 @@ const Profile = () => {
                 <button onClick={()=>setDashTab('reviewers')} className={`px-3 py-2 rounded ${dashTab==='reviewers' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}>Reviewers</button>
                 <button onClick={()=>setDashTab('admins')} className={`px-3 py-2 rounded ${dashTab==='admins' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}>Admins</button>
               </div>
-              <button onClick={async()=>{const t=sessionStorage.getItem("token");const reqHeader=t?{Authorization:`Bearer ${t}`}:{ };try{const res=await getAdminUsersApi(reqHeader);if(res?.status===200) setUsers(res.data||[]);}catch(_ERR){void _ERR; /* noop */}}} className="px-3 py-2 bg-blue-600 text-white rounded">Refresh</button>
+              <button onClick={async()=>{const t=sessionStorage.getItem("token");const reqHeader=t?{Authorization:`Bearer ${t}`}:{ };try{const res=await getAdminUsersApi(reqHeader);if(res?.status===200) setUsers(res.data||[]);}catch(error){console.error("Error:", error);}}} className="px-3 py-2 bg-blue-600 text-white rounded">Refresh</button>
             </div>
 
             {dashTab==='users' && (

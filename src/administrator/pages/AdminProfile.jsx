@@ -228,7 +228,8 @@ const AdminProfile = () => {
       } else {
         toast.error(res?.data || "Delete failed");
       }
-    } catch {
+    } catch (error) {
+      console.error("Error:", error);
       toast.error("Delete failed");
     }
   };

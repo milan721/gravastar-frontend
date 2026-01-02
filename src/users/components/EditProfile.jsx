@@ -34,7 +34,7 @@ const EditProfile = ({ onUpdated }) => {
           onUpdated && onUpdated(res.data);
           setOffCanvasStatus(false);
         }
-      } catch {}
+      } catch (error) { console.error("Error:", error); }
     };
   return (
     <>

@@ -25,7 +25,7 @@ const Header = () => {
         const reqHeader = { Authorization: `Bearer ${currentToken}` };
         const res = await getMeApi(reqHeader);
         if(res?.status===200) setMe(res.data);
-      }catch(_ERR){ /* noop */ }
+      }catch (error) { console.error("Error:", error); }
     })();
   },[location]);
 
@@ -33,7 +33,7 @@ const Header = () => {
     try {
       const euStr = typeof window !== 'undefined' ? sessionStorage.getItem('existingUser') : null;
       setExistingUser(euStr ? JSON.parse(euStr) : null);
-    } catch { setExistingUser(null); }
+    } catch (error) { console.error("Error:", error); setExistingUser(null); }
   },[]);
 
   // Keep loggedIn reactive across storage changes, focus, visibility, route nav and custom auth-change
@@ -44,14 +44,14 @@ const Header = () => {
       try {
         const euStr = typeof window !== 'undefined' ? sessionStorage.getItem('existingUser') : null;
         setExistingUser(euStr ? JSON.parse(euStr) : null);
-      } catch { /* noop */ }
+      } catch (error) { console.error("Error:", error); }
     };
     updateAuth();
     const onStorage = () => updateAuth();
     const onFocus = () => updateAuth();
     const onVis = () => updateAuth();
     const onAuthChange = () => updateAuth();
-    const onMessage = (e) => { try { if (e?.data && e.data.type === 'auth-change') updateAuth(); } catch { /* noop */ } };
+    const onMessage = (e) => { try { if (e?.data && e.data.type === 'auth-change') updateAuth(); } catch (error) { console.error("Error:", error); } };
     window.addEventListener('storage', onStorage);
     window.addEventListener('focus', onFocus);
     document.addEventListener('visibilitychange', onVis);

@@ -8,7 +8,7 @@ const Preloader = () => {
     const redirectTo = typeof window !== 'undefined' ? (sessionStorage.getItem('redirectToPath') || '/') : '/';
     const timer = setTimeout(() => {
       navigate(redirectTo, { replace: true });
-      try { sessionStorage.removeItem('redirectToPath'); } catch { /* noop */ }
+      try { sessionStorage.removeItem('redirectToPath'); } catch (error) { console.error("Error:", error); }
     }, 2000);
     return () => clearTimeout(timer);
   }, [navigate]);

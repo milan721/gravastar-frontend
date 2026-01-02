@@ -51,7 +51,7 @@ const handleRegister = async () => {
 // ---------------- ROLE REDIRECT ----------------
 const redirectByRole = (role) => {
   const path = role === "admin" ? "/admin-home" : role === "reviewer" ? "/review-home" : "/";
-  try { sessionStorage.setItem('redirectToPath', path); } catch { /* noop */ }
+  try { sessionStorage.setItem('redirectToPath', path); } catch (error) { console.error("Error:", error); }
   navigate('/loading');
 };
 
@@ -77,8 +77,8 @@ const handleLogin = async () => {
     );
     sessionStorage.setItem("token", token);
 
-    try { window.dispatchEvent(new Event('auth-change')); } catch { /* noop */ }
-    try { window.postMessage({ type: 'auth-change' }, '*'); } catch { /* noop */ }
+    try { window.dispatchEvent(new Event('auth-change')); } catch (error) { console.error("Error:", error); }
+    try { window.postMessage({ type: 'auth-change' }, '*'); } catch (error) { console.error("Error:", error); }
 
     redirectByRole(existingUser.role);
 
@@ -110,8 +110,8 @@ const handleGoogleLogin = async (credentialResponse) => {
     );
     sessionStorage.setItem("token", token);
 
-    try { window.dispatchEvent(new Event('auth-change')); } catch { /* noop */ }
-    try { window.postMessage({ type: 'auth-change' }, '*'); } catch { /* noop */ }
+    try { window.dispatchEvent(new Event('auth-change')); } catch (error) { console.error("Error:", error); }
+    try { window.postMessage({ type: 'auth-change' }, '*'); } catch (error) { console.error("Error:", error); }
 
     redirectByRole(existingUser.role);
 

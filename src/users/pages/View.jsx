@@ -41,11 +41,12 @@ const AllBooks = () => {
           const me = await getMeApi(reqHeader);
           const isAdmin = me?.status === 200 && me.data?.role === 'admin';
           setCanDelete(Boolean(email && (email === paper.email || isAdmin)));
-        } catch {
+        } catch (error) {
+          console.error("Error:", error);
           setCanDelete(Boolean(email && email === paper.email));
         }
       })();
-    } catch { setCanDelete(false); }
+    } catch (error) { console.error("Error:", error); setCanDelete(false); }
   }, [paper]);
 
   const abstractRef = useRef(null);
@@ -101,7 +102,8 @@ const AllBooks = () => {
       } else {
         toast.error(res?.data || 'Delete failed');
       }
-    } catch (e) {
+    } catch (error) {
+      console.error("Error:", error);
       toast.error('Delete failed');
     }
   };

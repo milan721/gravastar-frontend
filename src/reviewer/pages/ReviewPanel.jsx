@@ -48,7 +48,7 @@ const Profile = () => {
       const reqHeader = { Authorization: `Bearer ${t}` };
       const res = await getMeApi(reqHeader);
       if (res?.status === 200) setMe(res.data);
-    } catch { /* ignore */ }
+    } catch (error) { console.error("Error:", error); }
   };
 
   // Strict role gating: reviewer or admin
@@ -61,7 +61,7 @@ const Profile = () => {
         const role = res?.status === 200 ? res.data?.role : null;
         setIsReviewer(role === 'reviewer' || role === 'admin');
         if (res?.status === 200) setMe(res.data);
-      } catch (_ERR) { setIsReviewer(false); }
+      } catch (error) { console.error("Error:", error); setIsReviewer(false); }
     })();
   }, [token]);
 
@@ -92,7 +92,7 @@ const Profile = () => {
           if (my.status === 401) toast.info("Login required to load your review statuses.");
           else toast.error(my?.data?.error || "Failed to load your review statuses");
         }
-      } catch (err) { const _ = err; }
+      } catch (err) { console.error("Error:", err); }
     };
     load();
   }, []);
@@ -119,7 +119,7 @@ const Profile = () => {
           })();
         }
       }
-    } catch { /* ignore */ }
+    } catch (error) { console.error("Error:", error); }
   }, []);
 
   // Publish Research form state
@@ -170,14 +170,14 @@ const Profile = () => {
         toast.success("Paper published successfully");
         handleReset();
         // refresh papers and statuses
-        if (mail) {
-          try {
-            const res = await getUserPapersApi(mail);
-            if (res?.status === 200) setUserPapers(res.data || []);
-            const st = await getUserPaperStatusesApi(mail);
-            if (st?.status === 200) setStatusesMap(st.data || {});
-          } catch (_ERR) { void _ERR; }
-        }
+          if (mail) {
+            try {
+              const res = await getUserPapersApi(mail);
+              if (res?.status === 200) setUserPapers(res.data || []);
+              const st = await getUserPaperStatusesApi(mail);
+              if (st?.status === 200) setStatusesMap(st.data || {});
+            } catch (error) { console.error("Error:", error); }
+          }
       } else {
         if (result?.status === 401) toast.info("Please login to publish your paper.");
         else if (result?.status === 403) toast.info("Forbidden: You may not have permissions for this action.");
@@ -200,7 +200,7 @@ const Profile = () => {
         const mail = decoded?.userMail;
         if (mail) { setJwtEmail(mail); setPaperData((p) => ({ ...p, email: mail })); }
       }
-    } catch (_ERR) { void _ERR; }
+    } catch (error) { console.error("Error:", error); }
   }, []);
 
   const ReviewerRequestsSection = () => {
@@ -218,7 +218,7 @@ const Profile = () => {
           else if (r?.status === 401) toast.info("Please login to load reviewer requests.");
           else if (r?.status === 403) toast.info("Reviewer access required to manage reviewer requests.");
           else toast.error(r?.data?.error || "Failed to load reviewer requests");
-        } catch (err) { const _ = err; }
+        } catch (err) { console.error("Error:", err); }
       };
       loadReqs();
     }, []);
@@ -234,7 +234,8 @@ const Profile = () => {
         } else if (r?.status === 401) toast.info("Please login to remove reviewer requests.");
         else if (r?.status === 403) toast.info("Reviewer access required to remove reviewer requests.");
         else toast.error(r?.data || "Remove failed");
-      } catch {
+      } catch (error) {
+        console.error("Error:", error);
         toast.error("Remove failed");
       }
     };
@@ -250,7 +251,8 @@ const Profile = () => {
         } else if (r?.status === 401) toast.info("Please login to approve reviewer requests.");
         else if (r?.status === 403) toast.info("Reviewer or admin access required.");
         else toast.error(r?.data || "Approve failed");
-      } catch {
+      } catch (error) {
+        console.error("Error:", error);
         toast.error("Approve failed");
       }
     };
@@ -553,7 +555,7 @@ const Profile = () => {
           <div className="p-10 my-20 shadow rounded">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-semibold">Publish Status</h2>
-              <button onClick={async()=>{try{const t=sessionStorage.getItem('token');const d=t?jwtDecode(t):null;const mail=d?.userMail || paperData.email; if(!mail) return; const r=await getUserPapersApi(mail); if(r?.status===200) setUserPapers(r.data||[]); const s=await getUserPaperStatusesApi(mail); if(s?.status===200) setStatusesMap(s.data||{});}catch(_ERR){void _ERR;}}} className="px-3 py-2 bg-blue-600 text-white rounded">Refresh</button>
+              <button onClick={async()=>{try{const t=sessionStorage.getItem('token');const d=t?jwtDecode(t):null;const mail=d?.userMail || paperData.email; if(!mail) return; const r=await getUserPapersApi(mail); if(r?.status===200) setUserPapers(r.data||[]); const s=await getUserPaperStatusesApi(mail); if(s?.status===200) setStatusesMap(s.data||{});}catch(error){console.error("Error:", error);}}} className="px-3 py-2 bg-blue-600 text-white rounded">Refresh</button>
             </div>
             <div className="flex flex-col w-full mt-10 md:mt-0 space-y-4">
               {userPapers.filter(p=>!p.adminApproved).length === 0 && (
@@ -620,7 +622,7 @@ const Profile = () => {
 
         {contributionStatus && (
           <div className="p-10 my-20 shadow rounded">
-            <div className="flex justify-between items-center mb-4"><h2 className="text-2xl font-semibold">Contributions</h2><button onClick={async()=>{try{const t=sessionStorage.getItem('token');const d=t?jwtDecode(t):null;const mail=d?.userMail || paperData.email; if(!mail) return; const r=await getUserPapersApi(mail); if(r?.status===200) setUserPapers(r.data||[]); const s=await getUserPaperStatusesApi(mail); if(s?.status===200) setStatusesMap(s.data||{});}catch(_ERR){void _ERR;}}} className="px-3 py-2 bg-blue-600 text-white rounded">Refresh</button></div>
+            <div className="flex justify-between items-center mb-4"><h2 className="text-2xl font-semibold">Contributions</h2><button onClick={async()=>{try{const t=sessionStorage.getItem('token');const d=t?jwtDecode(t):null;const mail=d?.userMail || paperData.email; if(!mail) return; const r=await getUserPapersApi(mail); if(r?.status===200) setUserPapers(r.data||[]); const s=await getUserPaperStatusesApi(mail); if(s?.status===200) setStatusesMap(s.data||{});}catch(error){console.error("Error:", error);}}} className="px-3 py-2 bg-blue-600 text-white rounded">Refresh</button></div>
             <div className="bg-gray-100 p-4 rounded">
               <div className="flex flex-col w-full mt-4 md:mt-0 space-y-4">
                 {userPapers.filter(p=>p.adminApproved===true).length === 0 && (
@@ -657,7 +659,7 @@ const Profile = () => {
                           <FontAwesomeIcon icon={faFileArrowDown} />
                           <span>Download Abstract</span>
                         </a>
-                        <button onClick={async()=>{try{const t=sessionStorage.getItem('token');const reqHeader={Authorization:`Bearer ${t}`};const r=await deletePaperApi(p.id,reqHeader);if(r?.status===200){toast.success('Deleted');setUserPapers(list=>list.filter(x=>x.id!==p.id));}else toast.error(r?.data||'Delete failed');}catch(_ERR){void _ERR; toast.error('Delete failed')}}} className="flex items-center gap-2 text-red-600 hover:text-red-700"><FontAwesomeIcon icon={faTrash} /><span>Delete</span></button>
+                        <button onClick={async()=>{try{const t=sessionStorage.getItem('token');const reqHeader={Authorization:`Bearer ${t}`};const r=await deletePaperApi(p.id,reqHeader);if(r?.status===200){toast.success('Deleted');setUserPapers(list=>list.filter(x=>x.id!==p.id));}else toast.error(r?.data||'Delete failed');}catch(error){console.error("Error:", error); toast.error('Delete failed')}}} className="flex items-center gap-2 text-red-600 hover:text-red-700"><FontAwesomeIcon icon={faTrash} /><span>Delete</span></button>
                       </div>
                       {expandedContribIndex === idx && (
                         <div className="mt-2 bg-gray-300 p-3 text-sm rounded">{p.abstract}</div>
