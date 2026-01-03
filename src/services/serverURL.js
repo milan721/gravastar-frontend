@@ -1,1 +1,1 @@
-export const serverURL = "https://gravastar-backend-6.onrender.com";
+export const serverURL = "https://gravastar-backend-7.onrender.com";
