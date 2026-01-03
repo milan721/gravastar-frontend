@@ -279,7 +279,7 @@ We envision a digital ecosystem that promotes transparency, collaboration, and a
         />
       </div>
 
-      <div className="p-5 flex flex-col flex-grow">
+      <div className="p-5 flex flex-col grow">
         
         <p className="mb-3 font-normal text-gray-700">
           As the most powerful space telescope ever built, Webb is set to reveal the hidden universe in unprecedented detail. Webb is an international collaboration between NASA, the European Space Agency, and the Canadian Space Agency.

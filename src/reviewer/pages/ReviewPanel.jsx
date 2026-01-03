@@ -22,6 +22,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { serverURL } from "../../services/serverURL";
 import { jwtDecode } from "jwt-decode";
+import { getToken } from "../../services/authStorage";
 
 const Profile = () => {
   const [publishStatus, setPublishStatus] = useState(false);
@@ -37,13 +38,13 @@ const Profile = () => {
   const [expandedContribIndex, setExpandedContribIndex] = useState(null);
 
   const navigate = useNavigate();
-  const token = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
+  const token = getToken();
   const [isReviewer, setIsReviewer] = useState(false);
   const [me, setMe] = useState(null);
 
   const reloadMe = async () => {
     try {
-      const t = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
+      const t = getToken();
       if (!t) { setMe(null); return; }
       const reqHeader = { Authorization: `Bearer ${t}` };
       const res = await getMeApi(reqHeader);
@@ -71,7 +72,7 @@ const Profile = () => {
 
   useEffect(() => {
     const load = async () => {
-      const t = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
+      const t = getToken();
       if (!t) return;
       try {
         const res = await getReviewFeedApi("", { Authorization: `Bearer ${t}` });
@@ -106,7 +107,7 @@ const Profile = () => {
 
   useEffect(() => {
     try {
-      const t = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
+      const t = getToken();
       if (t) {
         const decoded = jwtDecode(t);
         const mail = decoded?.userMail;
@@ -151,7 +152,7 @@ const Profile = () => {
     if (missing.length) { toast.error(`Please fill: ${missing.join(", ")}`); return; }
     if (!pdf) { toast.error("Please upload a PDF file"); return; }
     try {
-      const t = typeof window !== 'undefined' ? sessionStorage.getItem('token') : null;
+      const t = getToken();
       const decoded = t ? jwtDecode(t) : null;
       const mail = decoded?.userMail || paperData.email;
       const genId = () => `P${Date.now().toString(36)}${Math.random().toString(36).slice(2,6)}`;
@@ -194,7 +195,7 @@ const Profile = () => {
   useEffect(() => {
     // Autofill email from JWT
     try {
-      const t = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
+      const t = getToken();
       if (t) {
         const decoded = jwtDecode(t);
         const mail = decoded?.userMail;
@@ -209,7 +210,7 @@ const Profile = () => {
 
     useEffect(() => {
       const loadReqs = async () => {
-        const t = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
+        const t = getToken();
         if (!t) return;
         const reqHeader = { Authorization: `Bearer ${t}` };
         try {
@@ -225,7 +226,7 @@ const Profile = () => {
 
     const removeRequest = async (id) => {
       try {
-        const t = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
+        const t = getToken();
         const reqHeader = { Authorization: `Bearer ${t}` };
         const r = await reviewerDeleteRequestApi(id, reqHeader);
         if (r?.status === 200) {
@@ -242,7 +243,7 @@ const Profile = () => {
 
     const assignReviewer = async (id) => {
       try {
-        const t = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
+        const t = getToken();
         const reqHeader = { Authorization: `Bearer ${t}` };
         const r = await reviewerApproveRequestApi(id, reqHeader);
         if (r?.status === 200) {
@@ -374,23 +375,14 @@ const Profile = () => {
       <Header />
       <div style={{ height: "200px" }} className="bg-gray-500"></div>
 
-      <div
-        style={{
-          height: "230px",
-          width: "230px",
-          borderRadius: "50%",
-          marginLeft: "70px",
-          marginTop: "-130px",
-        }}
-        className="bg-white overflow-hidden"
-      >
+      <div className="h-[230px] w-[230px] rounded-full bg-white overflow-hidden -mt-32 mx-auto md:ml-[70px] md:-mt-[130px]">
         <img
           className="w-full h-full object-cover"
           src={me?.profile ? `${serverURL}/uploads/${me.profile}` : "https://cdn-icons-png.flaticon.com/512/3135/3135823.png"}
           alt="profile pic"
         />
       </div>
-      <div className="flex px-20 mt-5 gap-10">
+      <div className="flex flex-col md:flex-row px-5 md:px-20 mt-5 gap-4 md:gap-10">
         <p className="flex justify-center items-center">
           <span className="text-3xl">{me?.username || me?.name || (me?.email ? me.email.split('@')[0] : 'User')}</span>{" "}
           <FontAwesomeIcon icon={faCircleCheck} className="text-blue-500 ms-2" />
@@ -414,9 +406,9 @@ const Profile = () => {
           </div>
         </div>
       ) : (
-      <div className="md:px-20">
+      <div className="px-3 md:px-20">
         {/* Tabs */}
-        <div className="flex justify-center items-center my-5">
+        <div className="flex flex-wrap justify-center items-center my-5 gap-2 md:gap-0 px-1 md:px-0">
           <p onClick={()=>{setPublishStatus(true);setStatusStatus(false);setContributionStatus(false);setReviewerStatus(false);setUserStatus(false)}} className={ publishStatus ? "p-4 text-blue-800 border border-t border-r border-gray-200 rounded cursor-pointer" : "p-4 text-black border-b border-gray-200" }>
             Publish Research
           </p>
@@ -477,9 +469,9 @@ const Profile = () => {
                 </div>
               </div>
             </div>
-            <div className="flex justify-end">
-              <button onClick={handleReset} className="bg-amber-500 rounded p-3">Reset</button>
-              <button onClick={handlePublish} className="bg-green-500 rounded text-white p-3 ms-4">Submit</button>
+            <div className="flex flex-col sm:flex-row justify-end gap-2">
+              <button onClick={handleReset} className="bg-amber-500 rounded px-3 py-2 text-sm md:px-4 md:py-2 md:text-base">Reset</button>
+              <button onClick={handlePublish} className="bg-green-500 rounded text-white px-3 py-2 text-sm md:px-4 md:py-2 md:text-base sm:ms-2">Submit</button>
             </div>
           </div>
         )}
@@ -495,7 +487,7 @@ const Profile = () => {
                 {feed.map((p, idx) => (
                   <div key={p.id || idx} className="bg-gray-200 w-full p-3 rounded">
                     <h2 className="text-lg font-semibold">{p.title}</h2>
-                    <div className="mt-1 flex gap-2">
+                    <div className="mt-1 flex flex-wrap gap-2">
                       <span
                         className={`text-xs px-2 py-1 rounded ${p.adminApproved ? "bg-green-200 text-green-800" : "bg-yellow-200 text-yellow-800"}`}
                       >
@@ -513,7 +505,7 @@ const Profile = () => {
                       {p.type ? " | " : ""}
                       {p.publisher || ""}
                     </p>
-                    <div className="flex items-center gap-3 mt-2">
+                    <div className="flex flex-wrap items-center gap-2 md:gap-3 mt-2">
                       <button
                         onClick={() => handleToggleReview(idx)}
                         className="flex items-center gap-2 text-blue-600"
@@ -523,7 +515,7 @@ const Profile = () => {
                       </button>
                       {p.pdf && (
                         <a
-                          className="flex items-center gap-2 text-blue-700 hover:text-blue-900"
+                          className="flex items-center gap-2 md:gap-2 text-blue-700 hover:text-blue-900"
                           href={p.pdf ? `${serverURL}/uploads/${p.pdf}` : "#"}
                           target="_blank"
                           rel="noreferrer"
@@ -536,9 +528,9 @@ const Profile = () => {
                     {expandedReviewIndex === idx && (
                       <div className="mt-2 bg-gray-300 p-3 text-sm rounded">{p.abstract}</div>
                     )}
-                    <div className="flex justify-center items-center gap-4 mt-4 mb-2">
+                    <div className="flex flex-wrap justify-center items-center gap-2 md:gap-4 mt-4 mb-2">
                       <button
-                        className="bg-blue-700 text-white py-2 px-3 shadow hover:border hover:border-blue-700 hover:text-blue-700 hover:bg-white"
+                        className="bg-blue-700 text-white py-2 px-3 text-sm md:text-base shadow hover:border hover:border-blue-700 hover:text-blue-700 hover:bg-white"
                         onClick={() => navigate("/review-view", { state: { paper: p } })}
                       >
                         Review
@@ -553,9 +545,9 @@ const Profile = () => {
 
         {statusStatus && (
           <div className="p-10 my-20 shadow rounded">
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-2 md:gap-0 mb-4">
               <h2 className="text-2xl font-semibold">Publish Status</h2>
-              <button onClick={async()=>{try{const t=sessionStorage.getItem('token');const d=t?jwtDecode(t):null;const mail=d?.userMail || paperData.email; if(!mail) return; const r=await getUserPapersApi(mail); if(r?.status===200) setUserPapers(r.data||[]); const s=await getUserPaperStatusesApi(mail); if(s?.status===200) setStatusesMap(s.data||{});}catch(error){console.error("Error:", error);}}} className="px-3 py-2 bg-blue-600 text-white rounded">Refresh</button>
+              <button onClick={async()=>{try{const t=getToken();const d=t?jwtDecode(t):null;const mail=d?.userMail || paperData.email; if(!mail) return; const r=await getUserPapersApi(mail); if(r?.status===200) setUserPapers(r.data||[]); const s=await getUserPaperStatusesApi(mail); if(s?.status===200) setStatusesMap(s.data||{});}catch(error){console.error("Error:", error);}}} className="px-3 py-2 bg-blue-600 text-white rounded">Refresh</button>
             </div>
             <div className="flex flex-col w-full mt-10 md:mt-0 space-y-4">
               {userPapers.filter(p=>!p.adminApproved).length === 0 && (
@@ -595,11 +587,11 @@ const Profile = () => {
                     {statusExpandedIndex === idx && (
                       <div className="mt-2 bg-gray-200 p-3 text-sm rounded">{p.abstract}</div>
                     )}
-                    <div className="flex justify-center items-center gap-4 mt-4 mb-2">
-                      <button className={`py-2 px-3 shadow rounded border ${isPending ? 'bg-blue-700 text-white border-blue-700' : 'bg-gray-100 text-gray-700 border-gray-300'}`}>Pending for review</button>
-                      <button className={`py-2 px-3 shadow rounded border ${isAccepted ? 'bg-green-700 text-white border-green-700' : 'bg-gray-100 text-gray-700 border-gray-300'}`}>Accepted</button>
-                      <button className={`py-2 px-3 shadow rounded border ${isSuggest ? 'bg-yellow-500 text-black border-yellow-500 animate-pulse cursor-pointer' : 'bg-gray-100 text-gray-700 border-gray-300 cursor-default'}`} onClick={isSuggest ? ()=>setSuggestionModal({ open:true, text: s.text || 'No suggestions provided yet.' }) : undefined}>Suggested Improvement</button>
-                      <button className={`py-2 px-3 shadow rounded border ${isRejected ? 'bg-red-700 text-white border-red-700 animate-pulse cursor-pointer' : 'bg-gray-100 text-gray-700 border-gray-300 cursor-default'}`} onClick={isRejected ? ()=>setSuggestionModal({ open:true, text: s.text || 'No reviewer notes.' }) : undefined}>Rejected</button>
+                    <div className="flex flex-wrap justify-center items-center gap-2 md:gap-4 mt-4 mb-2">
+                      <button className={`py-2 px-3 shadow rounded border text-sm md:text-base ${isPending ? 'bg-blue-700 text-white border-blue-700' : 'bg-gray-100 text-gray-700 border-gray-300'}`}>Pending for review</button>
+                      <button className={`py-2 px-3 shadow rounded border text-sm md:text-base ${isAccepted ? 'bg-green-700 text-white border-green-700' : 'bg-gray-100 text-gray-700 border-gray-300'}`}>Accepted</button>
+                      <button className={`py-2 px-3 shadow rounded border text-sm md:text-base ${isSuggest ? 'bg-yellow-500 text-black border-yellow-500 animate-pulse cursor-pointer' : 'bg-gray-100 text-gray-700 border-gray-300 cursor-default'}`} onClick={isSuggest ? ()=>setSuggestionModal({ open:true, text: s.text || 'No suggestions provided yet.' }) : undefined}>Suggested Improvement</button>
+                      <button className={`py-2 px-3 shadow rounded border text-sm md:text-base ${isRejected ? 'bg-red-700 text-white border-red-700 animate-pulse cursor-pointer' : 'bg-gray-100 text-gray-700 border-gray-300 cursor-default'}`} onClick={isRejected ? ()=>setSuggestionModal({ open:true, text: s.text || 'No reviewer notes.' }) : undefined}>Rejected</button>
                     </div>
                   </div>
                 );
@@ -622,7 +614,7 @@ const Profile = () => {
 
         {contributionStatus && (
           <div className="p-10 my-20 shadow rounded">
-            <div className="flex justify-between items-center mb-4"><h2 className="text-2xl font-semibold">Contributions</h2><button onClick={async()=>{try{const t=sessionStorage.getItem('token');const d=t?jwtDecode(t):null;const mail=d?.userMail || paperData.email; if(!mail) return; const r=await getUserPapersApi(mail); if(r?.status===200) setUserPapers(r.data||[]); const s=await getUserPaperStatusesApi(mail); if(s?.status===200) setStatusesMap(s.data||{});}catch(error){console.error("Error:", error);}}} className="px-3 py-2 bg-blue-600 text-white rounded">Refresh</button></div>
+            <div className="flex flex-col md:flex-row justify-between items-center gap-2 md:gap-0 mb-4"><h2 className="text-2xl font-semibold">Contributions</h2><button onClick={async()=>{try{const t=getToken();const d=t?jwtDecode(t):null;const mail=d?.userMail || paperData.email; if(!mail) return; const r=await getUserPapersApi(mail); if(r?.status===200) setUserPapers(r.data||[]); const s=await getUserPaperStatusesApi(mail); if(s?.status===200) setStatusesMap(s.data||{});}catch(error){console.error("Error:", error);}}} className="px-3 py-2 bg-blue-600 text-white rounded">Refresh</button></div>
             <div className="bg-gray-100 p-4 rounded">
               <div className="flex flex-col w-full mt-4 md:mt-0 space-y-4">
                 {userPapers.filter(p=>p.adminApproved===true).length === 0 && (
@@ -642,7 +634,7 @@ const Profile = () => {
                         {p.type ? " | " : ""}
                         {p.publisher || ""}
                       </p>
-                      <div className="flex items-center gap-3 mt-2">
+                      <div className="flex flex-wrap items-center gap-2 md:gap-3 mt-2">
                         <button
                           onClick={() => setExpandedContribIndex(expandedContribIndex === idx ? null : idx)}
                           className="flex items-center gap-2 hover:text-gray-700 focus:outline-none"
@@ -659,7 +651,7 @@ const Profile = () => {
                           <FontAwesomeIcon icon={faFileArrowDown} />
                           <span>Download Abstract</span>
                         </a>
-                        <button onClick={async()=>{try{const t=sessionStorage.getItem('token');const reqHeader={Authorization:`Bearer ${t}`};const r=await deletePaperApi(p.id,reqHeader);if(r?.status===200){toast.success('Deleted');setUserPapers(list=>list.filter(x=>x.id!==p.id));}else toast.error(r?.data||'Delete failed');}catch(error){console.error("Error:", error); toast.error('Delete failed')}}} className="flex items-center gap-2 text-red-600 hover:text-red-700"><FontAwesomeIcon icon={faTrash} /><span>Delete</span></button>
+                        <button onClick={async()=>{try{const t=getToken();const reqHeader={Authorization:`Bearer ${t}`};const r=await deletePaperApi(p.id,reqHeader);if(r?.status===200){toast.success('Deleted');setUserPapers(list=>list.filter(x=>x.id!==p.id));}else toast.error(r?.data||'Delete failed');}catch(error){console.error("Error:", error); toast.error('Delete failed')}}} className="flex items-center gap-2 text-red-600 hover:text-red-700"><FontAwesomeIcon icon={faTrash} /><span>Delete</span></button>
                       </div>
                       {expandedContribIndex === idx && (
                         <div className="mt-2 bg-gray-300 p-3 text-sm rounded">{p.abstract}</div>

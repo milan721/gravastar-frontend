@@ -10,6 +10,7 @@ import { searchKeyContext } from "../../context/contextShare";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { getToken } from "../../services/authStorage";
 
 const Collections = () => {
   const [papers, setPapers] = useState([]);
@@ -29,7 +30,7 @@ const Collections = () => {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   const { searchKey, setSearchKey } = useContext(searchKeyContext);
-  const token = sessionStorage.getItem("token");
+  const token = getToken();
   const navigate = useNavigate();
 
   const [genreOpen, setGenreOpen] = useState(false);

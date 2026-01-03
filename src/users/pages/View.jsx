@@ -11,6 +11,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { searchKeyContext } from '../../context/contextShare';
 import { deletePaperApi, getMeApi } from '../../services/allApi';
 import { jwtDecode } from 'jwt-decode';
+import { getToken } from '../../services/authStorage';
 
 const AllBooks = () => {
   const location = useLocation();
@@ -30,7 +31,7 @@ const AllBooks = () => {
 
   useEffect(() => {
     try {
-      const token = typeof window !== 'undefined' ? sessionStorage.getItem('token') : null;
+      const token = getToken();
       if (!token || !paper) { setCanDelete(false); return; }
       const decoded = jwtDecode(token);
       const email = decoded?.userMail;
@@ -92,7 +93,7 @@ const AllBooks = () => {
 
   const handleDelete = async () => {
     try {
-      const token = typeof window !== 'undefined' ? sessionStorage.getItem('token') : null;
+      const token = getToken();
       if (!token) { toast.info('Please login'); return; }
       const reqHeader = { Authorization: `Bearer ${token}` };
       const res = await deletePaperApi(paper.id, reqHeader);

@@ -12,6 +12,7 @@ import { jsPDF } from 'jspdf';
 import { useContext } from 'react';
 import { searchKeyContext } from '../../context/contextShare';
 import SuggestImprovementModal from '../../reviewer/pages/ReviewImprove';
+import { getToken } from '../../services/authStorage';
 
 const AllBooks = () => {
  
@@ -23,7 +24,7 @@ const AllBooks = () => {
   const { setSearchKey } = useContext(searchKeyContext);
   const [searchTerm, setSearchTerm] = useState('');
   const paper = state?.paper;
-  const token = typeof window !== 'undefined' ? sessionStorage.getItem('token') : null;
+  const token = getToken();
   const [modal, setModal] = useState({ open: false, mode: 'suggest' });
 
   const handleToggle = (index) => {

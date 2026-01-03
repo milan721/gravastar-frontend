@@ -15,6 +15,7 @@ import { serverURL } from "../../services/serverURL";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { jwtDecode } from "jwt-decode";
+import { getToken } from "../../services/authStorage";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -68,7 +69,7 @@ const Profile = () => {
   useEffect(() => {
     const run = async () => {
       try {
-        const t = typeof window !== 'undefined' ? sessionStorage.getItem('token') : null;
+        const t = getToken();
         if (!t) return;
         const decoded = jwtDecode(t);
         const mail = decoded?.userMail;
@@ -119,7 +120,7 @@ const Profile = () => {
     const formData = new FormData();
 
     // Always use JWT email to avoid mismatches
-    const token = sessionStorage.getItem("token");
+    const token = getToken();
     const decoded = token ? jwtDecode(token) : null;
     const jwtEmail = decoded?.userMail || paperData.email;
 
@@ -186,7 +187,7 @@ const Profile = () => {
   // Quick refresh to pull latest user papers + statuses
   const refreshUserData = async () => {
     try {
-      const token = typeof window !== 'undefined' ? sessionStorage.getItem('token') : null;
+      const token = getToken();
       if (!token) return;
       const decoded = jwtDecode(token);
       const mail = decoded?.userMail || paperData.email;
@@ -207,7 +208,7 @@ const Profile = () => {
     setReviewerFiles(Array.from(e.target.files || []));
   };
   const handleReviewerSubmit = async () => {
-    const token = sessionStorage.getItem("token");
+    const token = getToken();
     if (!token) {
       toast.info("Please login to submit reviewer request");
       return;
@@ -237,7 +238,7 @@ const Profile = () => {
 
   const handleDeletePaper = async (id) => {
     try {
-      const token = sessionStorage.getItem("token");
+      const token = getToken();
       const reqHeader = { Authorization: `Bearer ${token}` };
       const res = await deletePaperApi(id, reqHeader);
       if (res?.status === 200) {
@@ -253,7 +254,7 @@ const Profile = () => {
   };
 
   // Gate profile when not logged in
-  if (!sessionStorage.getItem("token")) {
+  if (!getToken()) {
     return (
       <>
         <Header />

@@ -9,6 +9,7 @@ import { serverURL } from '../../services/serverURL';
 import { getMeApi, getAllPapersApi } from '../../services/allApi';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { searchKeyContext } from '../../context/contextShare';
+import { getToken } from '../../services/authStorage';
 
 const AllBooks = () => {
   const [expandedIndex, setExpandedIndex] = useState(null);
@@ -41,7 +42,7 @@ const AllBooks = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const token = typeof window !== 'undefined' ? sessionStorage.getItem('token') : null;
+  const token = getToken();
   const [isAdmin, setIsAdmin] = useState(false);
 
   const fetchPapers = async () => {

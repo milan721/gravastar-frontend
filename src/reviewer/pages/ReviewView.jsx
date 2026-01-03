@@ -9,12 +9,13 @@ import { serverURL } from '../../services/serverURL';
 import { submitReviewDecisionApi } from '../../services/allApi';
 import { jsPDF } from 'jspdf';
 import { toast, ToastContainer } from 'react-toastify';
+import { getToken } from '../../services/authStorage';
 
 const ReviewView = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
   const paper = state?.paper;
-  const token = typeof window !== 'undefined' ? sessionStorage.getItem('token') : null;
+  const token = getToken();
   const [abstractOpen, setAbstractOpen] = useState(true);
   const [contentOpen, setContentOpen] = useState(true);
   const abstractRef = useRef(null);

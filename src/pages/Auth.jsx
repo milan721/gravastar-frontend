@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Header from "../users/components/Header";
 import Footer from "../components/Footer";
 import { loginAPI, registerAPI, googleLoginAPI } from "../services/allApi";
+import { setToken } from "../services/authStorage";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { GoogleLogin } from "@react-oauth/google";
@@ -71,11 +72,8 @@ const handleLogin = async () => {
 
     const { existingUser, token } = result.data;
 
-    sessionStorage.setItem(
-      "existingUser",
-      JSON.stringify(existingUser)
-    );
-    sessionStorage.setItem("token", token);
+    sessionStorage.setItem("existingUser", JSON.stringify(existingUser));
+    setToken(token);
 
     try { window.dispatchEvent(new Event('auth-change')); } catch (error) { console.error("Error:", error); }
     try { window.postMessage({ type: 'auth-change' }, '*'); } catch (error) { console.error("Error:", error); }
@@ -104,11 +102,8 @@ const handleGoogleLogin = async (credentialResponse) => {
 
     const { existingUser, token } = result.data;
 
-    sessionStorage.setItem(
-      "existingUser",
-      JSON.stringify(existingUser)
-    );
-    sessionStorage.setItem("token", token);
+    sessionStorage.setItem("existingUser", JSON.stringify(existingUser));
+    setToken(token);
 
     try { window.dispatchEvent(new Event('auth-change')); } catch (error) { console.error("Error:", error); }
     try { window.postMessage({ type: 'auth-change' }, '*'); } catch (error) { console.error("Error:", error); }

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { getToken, removeToken } from '../../services/authStorage'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faInstagram } from '@fortawesome/free-brands-svg-icons'
 import { faXTwitter } from '@fortawesome/free-brands-svg-icons'
@@ -13,13 +14,13 @@ const Header = () => {
   const [ dropDownStatus, setDropDownStatus] = useState(false)
   const [me, setMe] = useState(null);
   const [existingUser, setExistingUser] = useState(null);
-  const [loggedIn, setLoggedIn] = useState(!!(typeof window !== 'undefined' ? sessionStorage.getItem('token') : null));
+  const [loggedIn, setLoggedIn] = useState(!!getToken());
   const location = useLocation();
 
   useEffect(()=>{
     (async ()=>{
       try{
-        const currentToken = typeof window !== 'undefined' ? sessionStorage.getItem('token') : null;
+        const currentToken = getToken();
         if(!currentToken) { setMe(null); return; }
         const reqHeader = { Authorization: `Bearer ${currentToken}` };
         const res = await getMeApi(reqHeader);
@@ -37,7 +38,7 @@ const Header = () => {
 
   useEffect(()=>{
     const updateAuth = () => {
-      const t = typeof window !== 'undefined' ? sessionStorage.getItem('token') : null;
+      const t = getToken();
       setLoggedIn(!!t);
       try {
         const euStr = typeof window !== 'undefined' ? sessionStorage.getItem('existingUser') : null;
@@ -94,7 +95,7 @@ className="absolute right-0 z-10 mt-11.5 w-56 origin-top-right rounded-md I bg-w
       </Link>
       <button
         className="block px-4 py-2 text-sm text-gray-700" role="menuitem" tabIndex="-1" id="menu-item-1"
-        onClick={() => { sessionStorage.removeItem('token'); window.location.reload(); }}
+        onClick={() => { removeToken(); window.location.reload(); }}
       >
         <FontAwesomeIcon icon={faPowerOff} className="me-2" /> Logout
       </button>
@@ -136,7 +137,7 @@ className="absolute right-0 z-10 mt-11.5 w-56 origin-top-right rounded-md I bg-w
         {loggedIn ? (
           <button
             className='border border-white rounded px-3 py-2 ms-3 text-white'
-            onClick={()=>{sessionStorage.removeItem('token'); window.location.reload();}}
+            onClick={()=>{ removeToken(); window.location.reload(); }}
           >
             <FontAwesomeIcon icon={faPowerOff} className='me-2 text-white' /> Logout
           </button>

@@ -24,6 +24,7 @@ import {
   getUserPaperStatusesApi,
   getMeApi,
 } from "../../services/allApi";
+import { getToken } from "../../services/authStorage";
 const Profile = () => {
   const navigate = useNavigate();
   // Tabs
@@ -39,7 +40,7 @@ const Profile = () => {
 
   const reloadMe = async () => {
     try {
-      const t = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
+      const t = getToken();
       if (!t) { setMe(null); return; }
       const reqHeader = { Authorization: `Bearer ${t}` };
       const res = await getMeApi(reqHeader);
@@ -92,7 +93,7 @@ const Profile = () => {
     if (missing.length) { toast.error(`Please fill: ${missing.join(", ")}`); return; }
     if (!pdf) { toast.error("Please upload a PDF file"); return; }
     try {
-      const t = typeof window !== 'undefined' ? sessionStorage.getItem('token') : null;
+      const t = getToken();
       const decoded = t ? jwtDecode(t) : null;
       const mail = decoded?.userMail || paperData.email;
       const genId = () => `P${Date.now().toString(36)}${Math.random().toString(36).slice(2,6)}`;
@@ -129,7 +130,7 @@ const Profile = () => {
   };
 
   useEffect(() => {
-    const t = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
+    const t = getToken();
     const reqHeader = t ? { Authorization: `Bearer ${t}` } : {};
     (async () => {
       try { const res = await getAdminUsersApi(reqHeader); if (res?.status === 200) setUsers(res.data || []); } catch (error) { console.error("Error:", error); }
@@ -141,7 +142,7 @@ const Profile = () => {
   useEffect(() => {
     (async () => {
       try {
-        const t = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
+        const t = getToken();
         if (!t) { setIsAdmin(false); return; }
         const reqHeader = { Authorization: `Bearer ${t}` };
         const res = await getMeApi(reqHeader);
@@ -153,7 +154,7 @@ const Profile = () => {
 
   useEffect(() => {
     try {
-      const t = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
+      const t = getToken();
       if (t) {
         const decoded = jwtDecode(t);
         const mail = decoded?.userMail;
@@ -171,7 +172,7 @@ const Profile = () => {
   }, []);
 
   const refreshAccepted = async () => {
-    const t = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
+    const t = getToken();
     const reqHeader = t ? { Authorization: `Bearer ${t}` } : {};
     try {
       const r = await adminListAcceptedPapersApi(reqHeader);
@@ -180,7 +181,7 @@ const Profile = () => {
     } catch (error) { console.error("Error:", error); toast.error("Admin access required"); }
   };
   const refreshRejected = async () => {
-    const t = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
+    const t = getToken();
     const reqHeader = t ? { Authorization: `Bearer ${t}` } : {};
     try {
       const r = await adminListRejectedPapersApi(reqHeader);
@@ -198,21 +199,21 @@ const Profile = () => {
       <div className="h-[230px] w-[230px] rounded-full bg-white overflow-hidden -mt-32 mx-auto md:ml-[70px] md:-mt-[130px]">
         <img className="w-full h-full object-cover" src={me?.profile ? `${serverURL}/uploads/${me.profile}` : "https://cdn-icons-png.flaticon.com/512/3135/3135823.png"} alt="profile pic" />
       </div>
-      <div className="flex px-20 mt-5 gap-10">
+      <div className="flex flex-col md:flex-row px-5 md:px-20 mt-5 gap-4 md:gap-10">
         <p className="flex justify-center items-center"><span className="text-3xl">{me?.username || me?.name || (me?.email ? me.email.split('@')[0] : 'Admin')}</span>{" "}<FontAwesomeIcon icon={faCircleCheck} className="text-blue-500 ms-2" /></p>
         <EditProfile onUpdated={reloadMe} />
       </div>
       <p className="md:px-20 px-5 my-5 text-justify">{me?.bio || "Add your bio from Edit to show it here."}</p>
 
-      <div className="md:px-20">
+      <div className="px-3 md:px-20">
         {/* Tabs */}
-        <div className="flex justify-center items-center my-5">
+        <div className="flex flex-wrap justify-center items-center my-5 gap-2 md:gap-0 px-1 md:px-0">
           <p onClick={()=>{setPublishStatus(true);setStatusStatus(false);setContributionStatus(false);setReviewerStatus(false);setAddStatus(false);setRemoveGridStatus(false);setDashStatus(false);}} className={ publishStatus ? "p-4 text-blue-800 border border-t border-r border-gray-200 rounded cursor-pointer" : "p-4 text-black border-b border-gray-200" }>Publish Research</p>
           <p onClick={()=>{setPublishStatus(false);setStatusStatus(true);setContributionStatus(false);setReviewerStatus(false);setAddStatus(false);setRemoveGridStatus(false);setDashStatus(false);}} className={ statusStatus ? "p-4 text-blue-800 border border-t border-r border-gray-200 rounded cursor-pointer" : "p-4 text-black border-b border-gray-200" }>Publish Status</p>
           <p onClick={()=>{setPublishStatus(false);setStatusStatus(false);setContributionStatus(true);setReviewerStatus(false);setAddStatus(false);setRemoveGridStatus(false);setDashStatus(false);}} className={ contributionStatus ? "p-4 text-blue-800 border border-t border-r border-gray-200 rounded cursor-pointer" : "p-4 text-black border-b border-gray-200" }>Contributions</p>
           <p onClick={()=>{setPublishStatus(false);setStatusStatus(false);setContributionStatus(false);setReviewerStatus(false);setAddStatus(true);setRemoveGridStatus(false);setDashStatus(false);refreshAccepted();}} className={ addStatus ? "p-4 text-blue-800 border border-t border-r border-gray-200 rounded cursor-pointer" : "p-4 text-black border-b border-gray-200" }>Add to Grid</p>
           <p onClick={()=>{setPublishStatus(false);setStatusStatus(false);setContributionStatus(false);setReviewerStatus(false);setAddStatus(false);setRemoveGridStatus(true);setDashStatus(false);refreshRejected();}} className={ removeGridStatus ? "p-4 text-blue-800 border border-t border-r border-gray-200 rounded cursor-pointer" : "p-4 text-black border-b border-gray-200" }>Remove from Grid</p>
-          <p onClick={()=>{setPublishStatus(false);setStatusStatus(false);setContributionStatus(false);setReviewerStatus(false);setAddStatus(false);setRemoveGridStatus(false);setDashStatus(true);(async()=>{const t=sessionStorage.getItem("token");const reqHeader=t?{Authorization:`Bearer ${t}`}:{ };try{const res=await getAdminUsersApi(reqHeader);if(res?.status===200) setUsers(res.data||[]);}catch(error){console.error("Error:", error);}})();}} className={ dashStatus ? "p-4 text-blue-800 border border-t border-r border-gray-200 rounded cursor-pointer" : "p-4 text-black border-b border-gray-200" }>Dashboard</p>
+          <p onClick={()=>{setPublishStatus(false);setStatusStatus(false);setContributionStatus(false);setReviewerStatus(false);setAddStatus(false);setRemoveGridStatus(false);setDashStatus(true);(async()=>{const t=getToken();const reqHeader=t?{Authorization:`Bearer ${t}`}:{ };try{const res=await getAdminUsersApi(reqHeader);if(res?.status===200) setUsers(res.data||[]);}catch(error){console.error("Error:", error);}})();}} className={ dashStatus ? "p-4 text-blue-800 border border-t border-r border-gray-200 rounded cursor-pointer" : "p-4 text-black border-b border-gray-200" }>Dashboard</p>
         </div>
 
         {/* Publish Research (user parity) */}
@@ -246,7 +247,7 @@ const Profile = () => {
                 </div>
               </div>
             </div>
-            <div className="flex justify-end"><button onClick={handleReset} className="bg-amber-500 rounded text-black p-3">Reset</button><button onClick={handlePublish} className="bg-green-500 rounded text-white p-3 ms-4">Submit</button></div>
+            <div className="flex flex-col sm:flex-row justify-end gap-2"><button onClick={handleReset} className="bg-amber-500 rounded text-black px-3 py-2 text-sm md:px-4 md:py-2 md:text-base">Reset</button><button onClick={handlePublish} className="bg-green-500 rounded text-white px-3 py-2 text-sm md:px-4 md:py-2 md:text-base sm:ms-2">Submit</button></div>
           </div>
         )}
 
@@ -256,7 +257,7 @@ const Profile = () => {
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-semibold">Publish Status</h2>
               <button onClick={async()=>{
-                try{ const t=sessionStorage.getItem('token'); const decoded=t?jwtDecode(t):null; const mail=decoded?.userMail || paperData.email; if(!mail) return; const r=await getUserPapersApi(mail); if(r?.status===200) setAdminPapers(r.data||[]); const s=await getUserPaperStatusesApi(mail); if(s?.status===200) setAdminStatusesMap(s.data||{});}catch(error){console.error("Error:", error);}
+                try{ const t=getToken(); const decoded=t?jwtDecode(t):null; const mail=decoded?.userMail || paperData.email; if(!mail) return; const r=await getUserPapersApi(mail); if(r?.status===200) setAdminPapers(r.data||[]); const s=await getUserPaperStatusesApi(mail); if(s?.status===200) setAdminStatusesMap(s.data||{});}catch(error){console.error("Error:", error);}
               }} className="px-3 py-2 bg-blue-600 text-white rounded">Refresh</button>
             </div>
             <div className="flex flex-col w-full mt-10 md:mt-0 space-y-4">
@@ -282,11 +283,11 @@ const Profile = () => {
                       </button>
                     </div>
                     {statusExpandedIndex === idx && (<div className="mt-2 bg-gray-200 p-3 text-sm rounded">{p.abstract}</div>)}
-                    <div className="flex justify-center items-center gap-4 mt-4 mb-2">
-                      <button className={`py-2 px-3 shadow rounded border ${isPending ? 'bg-blue-700 text-white border-blue-700' : 'bg-gray-100 text-gray-700 border-gray-300'}`} style={isPending ? { backgroundColor: '#1d4ed8', color: '#ffffff', borderColor: '#1d4ed8' } : { backgroundColor: '#f3f4f6', color: '#374151', borderColor: '#d1d5db' }}>Pending for review</button>
-                      <button className={`py-2 px-3 shadow rounded border ${isAccepted ? 'bg-green-700 text-white border-green-700' : 'bg-gray-100 text-gray-700 border-gray-300'}`} style={isAccepted ? { backgroundColor: '#15803d', color: '#ffffff', borderColor: '#15803d' } : { backgroundColor: '#f3f4f6', color: '#374151', borderColor: '#d1d5db' }}>Accepted</button>
-                      <button className={`py-2 px-3 shadow rounded border ${isSuggest ? 'bg-yellow-500 text-black border-yellow-500 animate-pulse cursor-pointer' : 'bg-gray-100 text-gray-700 border-gray-300 cursor-default'}`} style={isSuggest ? { backgroundColor: '#f59e0b', color: '#111827', borderColor: '#f59e0b' } : { backgroundColor: '#f3f4f6', color: '#374151', borderColor: '#d1d5db' }} onClick={isSuggest ? ()=>setSuggestionModal({ open:true, text: s.text || 'No suggestions provided yet.' }) : undefined}>Suggested Improvement</button>
-                      <button className={`py-2 px-3 shadow rounded border ${isRejected ? 'bg-red-700 text-white border-red-700 animate-pulse cursor-pointer' : 'bg-gray-100 text-gray-700 border-gray-300 cursor-default'}`} style={isRejected ? { backgroundColor: '#b91c1c', color: '#ffffff', borderColor: '#b91c1c' } : { backgroundColor: '#f3f4f6', color: '#374151', borderColor: '#d1d5db' }} onClick={isRejected ? ()=>setSuggestionModal({ open:true, text: s.text || 'No reviewer notes.' }) : undefined}>Rejected</button>
+                    <div className="flex flex-wrap justify-center items-center gap-2 md:gap-4 mt-4 mb-2">
+                      <button className={`py-2 px-3 shadow rounded border text-sm md:text-base ${isPending ? 'bg-blue-700 text-white border-blue-700' : 'bg-gray-100 text-gray-700 border-gray-300'}`} style={isPending ? { backgroundColor: '#1d4ed8', color: '#ffffff', borderColor: '#1d4ed8' } : { backgroundColor: '#f3f4f6', color: '#374151', borderColor: '#d1d5db' }}>Pending for review</button>
+                      <button className={`py-2 px-3 shadow rounded border text-sm md:text-base ${isAccepted ? 'bg-green-700 text-white border-green-700' : 'bg-gray-100 text-gray-700 border-gray-300'}`} style={isAccepted ? { backgroundColor: '#15803d', color: '#ffffff', borderColor: '#15803d' } : { backgroundColor: '#f3f4f6', color: '#374151', borderColor: '#d1d5db' }}>Accepted</button>
+                      <button className={`py-2 px-3 shadow rounded border text-sm md:text-base ${isSuggest ? 'bg-yellow-500 text-black border-yellow-500 animate-pulse cursor-pointer' : 'bg-gray-100 text-gray-700 border-gray-300 cursor-default'}`} style={isSuggest ? { backgroundColor: '#f59e0b', color: '#111827', borderColor: '#f59e0b' } : { backgroundColor: '#f3f4f6', color: '#374151', borderColor: '#d1d5db' }} onClick={isSuggest ? ()=>setSuggestionModal({ open:true, text: s.text || 'No suggestions provided yet.' }) : undefined}>Suggested Improvement</button>
+                      <button className={`py-2 px-3 shadow rounded border text-sm md:text-base ${isRejected ? 'bg-red-700 text-white border-red-700 animate-pulse cursor-pointer' : 'bg-gray-100 text-gray-700 border-gray-300 cursor-default'}`} style={isRejected ? { backgroundColor: '#b91c1c', color: '#ffffff', borderColor: '#b91c1c' } : { backgroundColor: '#f3f4f6', color: '#374151', borderColor: '#d1d5db' }} onClick={isRejected ? ()=>setSuggestionModal({ open:true, text: s.text || 'No reviewer notes.' }) : undefined}>Rejected</button>
                     </div>
                   </div>
                 );
@@ -321,10 +322,10 @@ const Profile = () => {
                     <p className="text-sm text-gray-700">{p.author}</p>
                     <p className="text-sm">Genre: {p.genre}</p>
                     <p className="text-sm">{p.title}{p.title?" | ":""}{p.year||""}{p.year?" | ":""}{p.type||""}{p.type?" | ":""}{p.publisher||""}</p>
-                    <div className="flex items-center gap-3 mt-2">
-                      <button onClick={() => setExpandedContribIndex(expandedContribIndex === idx ? null : idx)} className="flex items-center gap-2 hover:text-gray-700 focus:outline-none"><FontAwesomeIcon icon={expandedContribIndex === idx ? faChevronUp : faChevronDown} /><span>Abstract</span></button>
-                      {p.pdf && (<a className="flex items-center gap-2 hover:text-gray-700" href={`${serverURL}/uploads/${p.pdf}`} target="_blank" rel="noreferrer"><FontAwesomeIcon icon={faFileArrowDown} /><span>Download Abstract</span></a>)}
-                      <button onClick={async()=>{try{const t=sessionStorage.getItem('token');const reqHeader={Authorization:`Bearer ${t}`};const r=await deletePaperApi(p.id,reqHeader);if(r?.status===200){toast.success('Deleted');setAdminPapers(list=>list.filter(x=>x.id!==p.id));}else toast.error(r?.data||'Delete failed');}catch(error){console.error("Error:", error); toast.error('Delete failed')}}} className="flex items-center gap-2 text-red-600 hover:text-red-700"><FontAwesomeIcon icon={faTrash} /><span>Delete</span></button>
+                    <div className="flex flex-wrap items-center gap-2 md:gap-3 mt-2">
+                      <button onClick={() => setExpandedContribIndex(expandedContribIndex === idx ? null : idx)} className="flex items-center gap-2 md:gap-2 hover:text-gray-700 focus:outline-none"><FontAwesomeIcon icon={expandedContribIndex === idx ? faChevronUp : faChevronDown} /><span>Abstract</span></button>
+                      {p.pdf && (<a className="flex items-center gap-2 md:gap-2 hover:text-gray-700" href={`${serverURL}/uploads/${p.pdf}`} target="_blank" rel="noreferrer"><FontAwesomeIcon icon={faFileArrowDown} /><span>Download Abstract</span></a>)}
+                      <button onClick={async()=>{try{const t=getToken();const reqHeader={Authorization:`Bearer ${t}`};const r=await deletePaperApi(p.id,reqHeader);if(r?.status===200){toast.success('Deleted');setAdminPapers(list=>list.filter(x=>x.id!==p.id));}else toast.error(r?.data||'Delete failed');}catch(error){console.error("Error:", error); toast.error('Delete failed')}}} className="flex items-center gap-2 md:gap-2 text-red-600 hover:text-red-700"><FontAwesomeIcon icon={faTrash} /><span>Delete</span></button>
                     </div>
                     {expandedContribIndex === idx && (<div className="mt-2 bg-gray-300 p-3 text-sm rounded">{p.abstract}</div>)}
                   </div>
@@ -361,7 +362,7 @@ const Profile = () => {
                   </div>
                   {expandedAddIndex === idx && <div className="mt-2 bg-gray-200 p-2 text-sm rounded">{p.abstract}</div>}
                   <div className="flex justify-end gap-3 mt-4">
-                    <button onClick={async()=>{try{const t=sessionStorage.getItem("token");const reqHeader={Authorization:`Bearer ${t}`};const r=await adminApprovePaperApi(p.id,reqHeader);if(r?.status===200){toast.success("Added to grid");setAcceptedPapers(list=>list.filter(x=>x.id!==p.id));await refreshAccepted();}else toast.error(r?.data||"Approve failed");}catch(error){console.error("Error:", error); toast.error("Approve failed")}}} className="bg-green-600 text-white px-3 py-2 rounded">Add to Grid</button>
+                    <button onClick={async()=>{try{const t=getToken();const reqHeader={Authorization:`Bearer ${t}`};const r=await adminApprovePaperApi(p.id,reqHeader);if(r?.status===200){toast.success("Added to grid");setAcceptedPapers(list=>list.filter(x=>x.id!==p.id));await refreshAccepted();}else toast.error(r?.data||"Approve failed");}catch(error){console.error("Error:", error); toast.error("Approve failed")}}} className="bg-green-600 text-white px-3 py-2 rounded">Add to Grid</button>
                   </div>
                 </div>
               ))}
@@ -381,7 +382,7 @@ const Profile = () => {
                   <p className="text-sm">{p.author}</p>
                   <p className="text-sm">Genre: {p.genre}</p>
                   <div className="flex justify-end gap-3 mt-4">
-                    <button onClick={async()=>{try{const t=sessionStorage.getItem("token");const reqHeader={Authorization:`Bearer ${t}`};const r=await deletePaperApi(p.id,reqHeader);if(r?.status===200){toast.success("Removed from grid");setRejectedPapers(list=>list.filter(x=>x.id!==p.id));await refreshRejected();}else toast.error(r?.data||"Remove failed");}catch(error){console.error("Error:", error); toast.error("Remove failed")}}} className="bg-red-600 text-white px-3 py-2 rounded">Remove</button>
+                    <button onClick={async()=>{try{const t=getToken();const reqHeader={Authorization:`Bearer ${t}`};const r=await deletePaperApi(p.id,reqHeader);if(r?.status===200){toast.success("Removed from grid");setRejectedPapers(list=>list.filter(x=>x.id!==p.id));await refreshRejected();}else toast.error(r?.data||"Remove failed");}catch(error){console.error("Error:", error); toast.error("Remove failed")}}} className="bg-red-600 text-white px-3 py-2 rounded">Remove</button>
                   </div>
                 </div>
               ))}
@@ -393,13 +394,13 @@ const Profile = () => {
         {/* Dashboard */}
         {dashStatus && (
           <div className="p-10 my-20 shadow rounded">
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-2 md:gap-0 mb-4">
               <div className="flex gap-2">
                 <button onClick={()=>setDashTab('users')} className={`px-3 py-2 rounded ${dashTab==='users' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}>Users</button>
                 <button onClick={()=>setDashTab('reviewers')} className={`px-3 py-2 rounded ${dashTab==='reviewers' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}>Reviewers</button>
                 <button onClick={()=>setDashTab('admins')} className={`px-3 py-2 rounded ${dashTab==='admins' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}>Admins</button>
               </div>
-              <button onClick={async()=>{const t=sessionStorage.getItem("token");const reqHeader=t?{Authorization:`Bearer ${t}`}:{ };try{const res=await getAdminUsersApi(reqHeader);if(res?.status===200) setUsers(res.data||[]);}catch(error){console.error("Error:", error);}}} className="px-3 py-2 bg-blue-600 text-white rounded">Refresh</button>
+              <button onClick={async()=>{const t=getToken();const reqHeader=t?{Authorization:`Bearer ${t}`}:{ };try{const res=await getAdminUsersApi(reqHeader);if(res?.status===200) setUsers(res.data||[]);}catch(error){console.error("Error:", error);}}} className="px-3 py-2 bg-blue-600 text-white rounded">Refresh</button>
             </div>
 
             {dashTab==='users' && (
@@ -418,7 +419,7 @@ const Profile = () => {
                       <p className="mb-3 text-sm text-gray-500 italic">{u.email}</p>
                       <p className="mb-3 text-sm">Role: {u.role}</p>
                       <div className="mt-auto flex flex-wrap gap-2">
-                        <button onClick={async()=>{const t=sessionStorage.getItem("token");const reqHeader={Authorization:`Bearer ${t}`};const r=await adminDeleteUserApi(u._id,reqHeader); if(r?.status===200){toast.success("User removed"); setUsers(list=>list.filter(x=>x._id!==u._id));} else toast.error(r?.data||"Remove failed")}} className="inline-flex items-center px-4 py-2 text-sm font-medium text-center border border-red-700 bg-white text-red-700 shadow hover:bg-red-700 hover:text-white rounded-md">Remove</button>
+                        <button onClick={async()=>{const t=getToken();const reqHeader={Authorization:`Bearer ${t}`};const r=await adminDeleteUserApi(u._id,reqHeader); if(r?.status===200){toast.success("User removed"); setUsers(list=>list.filter(x=>x._id!==u._id));} else toast.error(r?.data||"Remove failed")}} className="inline-flex items-center px-4 py-2 text-sm font-medium text-center border border-red-700 bg-white text-red-700 shadow hover:bg-red-700 hover:text-white rounded-md">Remove</button>
                       </div>
                     </div>
                   </div>
@@ -446,8 +447,8 @@ const Profile = () => {
                       <div className="mt-auto flex flex-wrap gap-2">
                         
                         <button onClick={async()=>{const t=sessionStorage.getItem("token");const reqHeader={Authorization:`Bearer ${t}`};const r=await adminDeleteUserApi(u._id,reqHeader); if(r?.status===200){toast.success("Reviewer removed"); setUsers(list=>list.filter(x=>x._id!==u._id));} else toast.error(r?.data||"Remove failed")}} className="inline-flex items-center px-4 py-2 text-sm font-medium text-center border border-red-700 bg-white text-red-700 shadow hover:bg-red-700 hover:text-white rounded-md">Remove</button>
-                        <button onClick={async()=>{const t=sessionStorage.getItem("token");const reqHeader={Authorization:`Bearer ${t}`};const r=await adminUpgradeUserApi(u._id,'admin',reqHeader); if(r?.status===200){toast.success("Upgraded to admin"); setUsers(list=>list.map(x=>x._id===u._id?{...x,role:'admin'}:x));} else toast.error(r?.data||"Upgrade failed")}} className="inline-flex items-center px-4 py-2 text-sm font-medium text-center border border-green-700 bg-white text-green-700 shadow hover:bg-green-700 hover:text-white rounded-md">Upgrade to Admin</button>
-                        <button onClick={async()=>{const t=sessionStorage.getItem("token");const reqHeader={Authorization:`Bearer ${t}`};const r=await adminUpgradeUserApi(u._id,'user',reqHeader); if(r?.status===200){toast.success("Downgraded to user"); setUsers(list=>list.map(x=>x._id===u._id?{...x,role:'user'}:x));} else toast.error(r?.data||"Downgrade failed")}} className="inline-flex items-center px-4 py-2 text-sm font-medium text-center border border-amber-700 bg-white text-amber-700 shadow hover:bg-amber-700 hover:text-white rounded-md">Downgrade to User</button>
+                        <button onClick={async()=>{const t=getToken();const reqHeader={Authorization:`Bearer ${t}`};const r=await adminUpgradeUserApi(u._id,'admin',reqHeader); if(r?.status===200){toast.success("Upgraded to admin"); setUsers(list=>list.map(x=>x._id===u._id?{...x,role:'admin'}:x));} else toast.error(r?.data||"Upgrade failed")}} className="inline-flex items-center px-4 py-2 text-sm font-medium text-center border border-green-700 bg-white text-green-700 shadow hover:bg-green-700 hover:text-white rounded-md">Upgrade to Admin</button>
+                        <button onClick={async()=>{const t=getToken();const reqHeader={Authorization:`Bearer ${t}`};const r=await adminUpgradeUserApi(u._id,'user',reqHeader); if(r?.status===200){toast.success("Downgraded to user"); setUsers(list=>list.map(x=>x._id===u._id?{...x,role:'user'}:x));} else toast.error(r?.data||"Downgrade failed")}} className="inline-flex items-center px-4 py-2 text-sm font-medium text-center border border-amber-700 bg-white text-amber-700 shadow hover:bg-amber-700 hover:text-white rounded-md">Downgrade to User</button>
                       </div>
                     </div>
                   </div>
@@ -473,9 +474,9 @@ const Profile = () => {
                       </div>
                       <p className="mb-3 text-sm text-gray-500 italic">{u.email}</p>
                       <div className="mt-auto flex flex-wrap gap-2">
-                        <button onClick={async()=>{const t=sessionStorage.getItem("token");const reqHeader={Authorization:`Bearer ${t}`};const r=await adminUpgradeUserApi(u._id,'reviewer',reqHeader); if(r?.status===200){toast.success("Downgraded to reviewer"); setUsers(list=>list.map(x=>x._id===u._id?{...x,role:'reviewer'}:x));} else toast.error(r?.data||"Downgrade failed")}} className="inline-flex items-center px-4 py-2 text-sm font-medium text-center border border-green-700 bg-white text-green-700 shadow hover:bg-green-700 hover:text-white rounded-md">Downgrade to Reviewer</button>
-                        <button onClick={async()=>{const t=sessionStorage.getItem("token");const reqHeader={Authorization:`Bearer ${t}`};const r=await adminUpgradeUserApi(u._id,'user',reqHeader); if(r?.status===200){toast.success("Downgraded to user"); setUsers(list=>list.map(x=>x._id===u._id?{...x,role:'user'}:x));} else toast.error(r?.data||"Downgrade failed")}} className="inline-flex items-center px-4 py-2 text-sm font-medium text-center border border-amber-700 bg-white text-amber-700 shadow hover:bg-amber-700 hover:text-white rounded-md">Downgrade to User</button>
-                        <button onClick={async()=>{const t=sessionStorage.getItem("token");const reqHeader={Authorization:`Bearer ${t}`};const r=await adminDeleteUserApi(u._id,reqHeader); if(r?.status===200){toast.success("Admin removed"); setUsers(list=>list.filter(x=>x._id!==u._id));} else toast.error(r?.data||"Remove failed")}} className="inline-flex items-center px-4 py-2 text-sm font-medium text-center border border-red-700 bg-white text-red-700 shadow hover:bg-red-700 hover:text-white rounded-md">Remove</button>
+                        <button onClick={async()=>{const t=getToken();const reqHeader={Authorization:`Bearer ${t}`};const r=await adminUpgradeUserApi(u._id,'reviewer',reqHeader); if(r?.status===200){toast.success("Downgraded to reviewer"); setUsers(list=>list.map(x=>x._id===u._id?{...x,role:'reviewer'}:x));} else toast.error(r?.data||"Downgrade failed")}} className="inline-flex items-center px-4 py-2 text-sm font-medium text-center border border-green-700 bg-white text-green-700 shadow hover:bg-green-700 hover:text-white rounded-md">Downgrade to Reviewer</button>
+                        <button onClick={async()=>{const t=getToken();const reqHeader={Authorization:`Bearer ${t}`};const r=await adminUpgradeUserApi(u._id,'user',reqHeader); if(r?.status===200){toast.success("Downgraded to user"); setUsers(list=>list.map(x=>x._id===u._id?{...x,role:'user'}:x));} else toast.error(r?.data||"Downgrade failed")}} className="inline-flex items-center px-4 py-2 text-sm font-medium text-center border border-amber-700 bg-white text-amber-700 shadow hover:bg-amber-700 hover:text-white rounded-md">Downgrade to User</button>
+                        <button onClick={async()=>{const t=getToken();const reqHeader={Authorization:`Bearer ${t}`};const r=await adminDeleteUserApi(u._id,reqHeader); if(r?.status===200){toast.success("Admin removed"); setUsers(list=>list.filter(x=>x._id!==u._id));} else toast.error(r?.data||"Remove failed")}} className="inline-flex items-center px-4 py-2 text-sm font-medium text-center border border-red-700 bg-white text-red-700 shadow hover:bg-red-700 hover:text-white rounded-md">Remove</button>
                       </div>
                     </div>
                   </div>
