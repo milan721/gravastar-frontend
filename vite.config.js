@@ -11,7 +11,7 @@ export default defineConfig({
     host: 'localhost',
     open: true,
     hmr: {
-      clientport: 5175,
+      clientPort: 5175,
     },
     headers: {
       // Allow cross-origin popups to communicate via window.postMessage
